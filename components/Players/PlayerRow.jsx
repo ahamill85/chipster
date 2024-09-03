@@ -24,8 +24,6 @@ export default PlayerRow = ({
   const QuickActions = ({ player, editItem, deleteItem }) => {
     const { close } = useSwipeableItemParams();
 
-    //console.log(useSwipeableItemParams());
-
     return (
       <View
         style={{ flex: 1, flexDirection: "row", justifyContent: "flex-end" }}
@@ -88,9 +86,9 @@ export default PlayerRow = ({
       )}
       snapPointsLeft={[200]}
     >
-      {/* <ScaleDecorator>
+      <ScaleDecorator>
         <ShadowDecorator>
-          <Pressable onLongPress={drag} disabled={isActive}> */}
+          <Pressable onLongPress={drag} disabled={isActive}>
             <ThemedView style={styles.item}>
               <ThemedView
                 style={{
@@ -115,9 +113,9 @@ export default PlayerRow = ({
                 <ThemedText type="subtitle">{item.name}</ThemedText>
               </ThemedView>
             </ThemedView>
-          {/* </Pressable>
+          </Pressable>
         </ShadowDecorator>
-      </ScaleDecorator> */}
+      </ScaleDecorator>
     </SwipeableItem>
   );
 };

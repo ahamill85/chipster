@@ -7,16 +7,11 @@ import {
   Platform,
 } from "react-native";
 
-import { ThemedText } from "../ThemedText";
 import { ThemedView } from "../ThemedView";
 
-import DraggableFlatList from "react-native-draggable-flatlist";
-import { ThemedButton } from "../ThemedButton";
 import { useHeaderHeight } from "@react-navigation/elements";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { useSelector, useDispatch } from "react-redux";
-import { removePlayer, reorderPlayers } from "@/features/slices/playersSlice";
-import { FontAwesome6 } from "@expo/vector-icons";
+import { removePlayer } from "@/features/slices/playersSlice";
 import AddPlayerFormModal from "./AddPlayerFormModal";
 import EditPlayerFormModal from "./EditPlayerFormModal";
 import PlayerRow from "./PlayerRow";
