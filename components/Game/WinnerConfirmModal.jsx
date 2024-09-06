@@ -1,9 +1,9 @@
 import React from "react";
-import { StyleSheet, View, Modal } from "react-native";
+import { View } from "react-native";
 
 import { ThemedText } from "../ThemedText";
-import { ThemedView } from "../ThemedView";
 import { ThemedButton } from "../ThemedButton";
+import ThemedModal from "../ThemedModal";
 
 export default WinnerConfirmModal = ({
   player,
@@ -12,37 +12,14 @@ export default WinnerConfirmModal = ({
   ...rest
 }) => {
   return (
-    <Modal {...rest}>
-      <View style={styles.backdrop}>
-        <ThemedView style={styles.modal}>
-          <ThemedText type="subtitle">{`Did ${player?.name} win this hand?`}</ThemedText>
-          <View style={{ flexDirection: "row", gap: 10 }}>
-            <ThemedButton onPress={handleCancel}>Cancel</ThemedButton>
-            <ThemedButton onPress={handleConfirm}>Confirm</ThemedButton>
-          </View>
-        </ThemedView>
+    <ThemedModal {...rest}>
+      <View style={{gap: 20}}>
+        <ThemedText type="subtitle">{`Did ${player?.name} win this hand?`}</ThemedText>
+        <View style={{ flexDirection: "row", gap: 10 }}>
+          <ThemedButton type="danger" style={{flex: 1}} onPress={handleCancel}>Cancel</ThemedButton>
+          <ThemedButton style={{flex: 1}} onPress={handleConfirm}>Confirm</ThemedButton>
+        </View>
       </View>
-    </Modal>
+    </ThemedModal>
   );
 };
-
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.3)",
-  },
-  modal: {
-    padding: 20,
-    borderRadius: 20,
-    gap: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-});

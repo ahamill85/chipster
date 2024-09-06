@@ -1,5 +1,5 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View, Image } from "react-native";
 import {
   ScaleDecorator,
   ShadowDecorator,
@@ -12,6 +12,57 @@ import { ThemedView } from "../ThemedView";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { ThemedText } from "../ThemedText";
 
+const QuickActions = ({ player, editItem, deleteItem }) => {
+  const { close } = useSwipeableItemParams();
+
+  return (
+    <View style={{ flex: 1, flexDirection: "row", justifyContent: "flex-end" }}>
+      <View style={{ flexGrow: 0, width: 100, height: "100%" }}>
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: useThemeColor({}, "warningBackground"),
+          }}
+          onPress={() => {
+            editItem(player);
+            close();
+          }}
+        >
+          <ThemedText
+            type="defaultSemiBold"
+            style={{ color: useThemeColor({}, "warningText") }}
+          >
+            EDIT
+          </ThemedText>
+        </TouchableOpacity>
+      </View>
+      <View style={{ flexGrow: 0, width: 100, height: "100%" }}>
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: useThemeColor({}, "errorBackground"),
+          }}
+          onPress={() => {
+            deleteItem(player);
+            close();
+          }}
+        >
+          <ThemedText
+            type="defaultSemiBold"
+            style={{ color: useThemeColor({}, "errorText") }}
+          >
+            DELETE
+          </ThemedText>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
 export default PlayerRow = ({
   item,
   drag,
@@ -20,59 +71,6 @@ export default PlayerRow = ({
   deleteCallback,
 }) => {
   const buttonText = useThemeColor({}, "buttonText");
-
-  const QuickActions = ({ player, editItem, deleteItem }) => {
-    const { close } = useSwipeableItemParams();
-
-    return (
-      <View
-        style={{ flex: 1, flexDirection: "row", justifyContent: "flex-end" }}
-      >
-        <View style={{ flexGrow: 0, width: 100, height: "100%" }}>
-          <TouchableOpacity
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: useThemeColor({}, "warningBackground"),
-            }}
-            onPress={() => {
-              editItem(player);
-              close();
-            }}
-          >
-            <ThemedText
-              type="defaultSemiBold"
-              style={{ color: useThemeColor({}, "warningText") }}
-            >
-              EDIT
-            </ThemedText>
-          </TouchableOpacity>
-        </View>
-        <View style={{ flexGrow: 0, width: 100, height: "100%" }}>
-          <TouchableOpacity
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: useThemeColor({}, "errorBackground"),
-            }}
-            onPress={() => {
-              deleteItem(player);
-              close();
-            }}
-          >
-            <ThemedText
-              type="defaultSemiBold"
-              style={{ color: useThemeColor({}, "errorText") }}
-            >
-              DELETE
-            </ThemedText>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
 
   return (
     <SwipeableItem
@@ -113,6 +111,12 @@ export default PlayerRow = ({
                 <ThemedText type="subtitle">{item.name}</ThemedText>
               </ThemedView>
             </ThemedView>
+            <View
+              style={{
+                height: StyleSheet.hairlineWidth,
+                backgroundColor: useThemeColor({}, "tint"),
+              }}
+            />
           </Pressable>
         </ShadowDecorator>
       </ScaleDecorator>

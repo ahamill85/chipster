@@ -70,6 +70,7 @@ const button = StyleSheet.create({
     height: 60,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 0,
   },
   link: {
     ...buttonBase,

@@ -48,13 +48,16 @@ const App = () => {
     headerTitleStyle: {
       fontWeight: "bold",
     },
+    border: 0
   };
 
   return (
-    <Stack.Navigator initialRouteName="Welcome">
+    <Stack.Navigator initialRouteName="Welcome" 
+    //screenOptions={{headerShown: false}}
+    >
       <Stack.Screen
         name="Welcome"
-        component={WelcomeScreen}
+        component={Game}
         options={{ headerShown: false }}
       />
       <Stack.Screen

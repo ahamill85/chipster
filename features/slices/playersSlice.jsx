@@ -3,27 +3,43 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = [
   {
     id: 1,
-    name: "Raphael",
+    name: "Samantha",
     currentBet: 0,
-    folded: false,
     balance: 100,
     avatar: null,
+    isDealer: true,
+    status: "ready",
+    inTheGun: false,
   },
   {
     id: 11,
-    name: "Aquila",
+    name: "Anthony",
     currentBet: 0,
-    folded: false,
-    balance: 100,
+    balance: 50,
     avatar: null,
+    isDealer: false,
+    status: "ready",
+    inTheGun: true,
   },
   {
     id: 21,
-    name: "Geraldine",
+    name: "Harper",
     currentBet: 0,
-    folded: false,
     balance: 100,
     avatar: null,
+    isDealer: false,
+    status: "ready",
+    inTheGun: false,
+  },
+  {
+    id: 32,
+    name: "Cameron",
+    currentBet: 0,
+    balance: 100,
+    avatar: null,
+    isDealer: false,
+    status: "ready",
+    inTheGun: false,
   },
 ];
 
@@ -41,30 +57,85 @@ export const playersSlice = createSlice({
       return action.payload;
     },
     updatePlayer: (state, action) => {
-      const player = state[action.payload.index];
-      state[action.payload.index] = { ...player, ...action.payload };
+      return state.map((player) => {
+        if (player.id === action.payload.id) {
+          return { ...player, ...action.payload };
+        } else {
+          return player;
+        }
+      });
     },
-  },
-});
+    bet: (state, { payload: { amount, type } }) => {
+      const currentIndex = state.findIndex(({ inTheGun }) => inTheGun);
 
-export const playerSlice = createSlice({
-  name: "player",
-  initialState: initialState,
-  reducers: {
-    setName: (state, action) => {
-      state.name = action.payload;
+      //update player
+      state[currentIndex] = {
+        ...state[currentIndex],
+        inTheGun: false,
+        status: type,
+        currentBet: state[currentIndex].currentBet + amount,
+        balance: state[currentIndex].balance - amount,
+      };
+
+      //activate next player
+      for (var i = 0; i < state.length; i++) {
+        const pointer = (i + currentIndex + 1) % state.length;
+        const player = state[pointer];
+
+        //ensure next player is not
+        if (
+          player.status !== "out" &&
+          player.status !== "fold" &&
+          player.balance
+        ) {
+          state[pointer].inTheGun = true;
+          break;
+        }
+      }
+
+      if (!state.some(({ inTheGun }) => inTheGun)) {
+        const dealerIndex = state.findIndex(({ isDealer }) => isDealer);
+        state[dealerIndex + 1].inTheGun = true;
+        console.log("fucked up");
+      }
     },
-    addChips: (state, action) => {
-      state.chips += action.payload;
-    },
-    removeChips: (state, action) => {
-      state.chips -= action.payload;
-    },
-    setHand: (state, action) => {
-      state.hand = action.payload;
-    },
-    fold: (state) => {
-      state.isInGame = false;
+    resetPlayers: (state) =>
+      state.map((player) => ({
+        ...player,
+        currentBet: 0,
+        folded: !player.balance,
+        status: !player.balance ? "out" : "ready",
+      })),
+    nextDealer: (state) => {
+      const dealerIndex = state.findIndex(({ isDealer }) => isDealer);
+      const playerIndex = state.findIndex(({ inTheGun }) => inTheGun);
+
+      let foundDealer = false;
+
+      state[dealerIndex].isDealer = false;
+      state[playerIndex].inTheGun = false;
+
+      for (var i = 0; i < state.length; i++) {
+        const pointer = (i + dealerIndex + 1) % state.length;
+        const player = state[pointer];
+
+        console.log(player.isDealer);
+
+        if (!foundDealer) {
+          player.isDealer = true;
+          foundDealer = true;
+          continue;
+        }
+
+        if (
+          player.status !== "out" &&
+          player.status !== "fold" &&
+          player.balance
+        ) {
+          state[pointer].inTheGun = true;
+          break;
+        }
+      }
     },
   },
 });
@@ -75,9 +146,9 @@ export const {
   removePlayer,
   reorderPlayers,
   updatePlayer,
+  resetPlayers,
+  nextDealer,
+  bet,
 } = playersSlice.actions;
-
-export const { setName, addChips, removeChips, setHand, fold, resetGame } =
-  playerSlice.actions;
 
 export default playersSlice.reducer;

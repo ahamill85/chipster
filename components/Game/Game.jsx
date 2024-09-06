@@ -3,36 +3,31 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   Keyboard,
-  Alert,
 } from "react-native";
 
 import { ThemedText } from "../ThemedText";
 import { ThemedView } from "../ThemedView";
 
 import { ThemedButton } from "../ThemedButton";
-import { TextInput } from "react-native-gesture-handler";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useSelector, useDispatch } from "react-redux";
-import { newGame } from "@/features/slices/gameSlice";
 import {
-  updateActivePlayer,
-  updateCallAmount,
-  updatePotAmount,
-  incrementcurrentRound,
-} from "@/features/slices/handSlice";
-
-import { FontAwesome, FontAwesome6 } from "@expo/vector-icons";
-import { updatePlayer } from "@/features/slices/playersSlice";
+  updatePlayer,
+  resetPlayers,
+  nextDealer,
+  bet,
+} from "@/features/slices/playersSlice";
 import PlayerRow from "./PlayerRow";
 import WinnerConfirmModal from "./WinnerConfirmModal";
+import ThemedModal from "../ThemedModal";
+import Avatar from "../Avatar";
+import BettingControls from "./BettingControls";
 
 const maxReraise = 1;
-const maxRoundCount = 5;
+const maxRounds = 5;
+const rotatingDealer = true;
 
 const HorizontalRule = () => (
   <View
@@ -45,154 +40,163 @@ const HorizontalRule = () => (
 
 export default Game = () => {
   const players = useSelector((state) => state.players);
-  const game = useSelector((state) => state.game);
-  const hand = useSelector((state) => state.hand);
+  //const hand = useSelector((state) => state.hand);
 
   const dispatch = useDispatch();
 
-  const [betAmount, setBetAmount] = useState(0);
-  const [currentRound, setCurrentRound] = useState(1);
+  //game state vars
   const [currentHand, setCurrentHand] = useState(1);
-  const [activePlayerIndex, setActivePlayerIndex] = useState(1);
-  const [pacePlayerIndex, setPacePlayerIndex] = useState(null);
-  const [potAmount, setPotAmount] = useState(0);
-
-  const [winnerModalVisible, setWinnerModalVisible] = useState(false);
-  const [winnerIndex, setWinnerIndex] = useState(null);
-
-  const headerHeight = useHeaderHeight();
-
-  const [bets, setBets] = useState([players.map(() => 0)]);
+  const [bets, setBets] = useState([players.map(() => null)]);
   const [reraise, setReraise] = useState(players.map(() => 0));
 
-  const [keyboardStatus, setKeyboardStatus] = useState(false);
-
-  const [promptWinner, setPromptWinner] = useState(false);
-
-  const paceAmount = useMemo(() => Math.max(...bets[currentRound - 1]), [bets]);
+  const activePlayerIndex = players.findIndex(({ inTheGun }) => inTheGun);
+  const currentRound = bets.length - 1;
+  const paceAmount = Math.max(...bets[currentRound]);
+  const potAmount = bets.reduce(
+    (totalSum, round) =>
+      totalSum + round.reduce((roundSum, bet) => roundSum + bet, 0),
+    0
+  );
 
   const callAmount = useMemo(() => {
-    const currentBet = bets[currentRound - 1][activePlayerIndex];
-    return paceAmount - currentBet;
-  }, [activePlayerIndex]);
+    const currentBet = bets[currentRound][activePlayerIndex];
+    const playerBalance = players[activePlayerIndex].balance;
+    const newCallAmount = paceAmount - currentBet;
 
-  const calculateWinnings = () => {
-    console.log(bets);
-  };
+    return newCallAmount > playerBalance ? playerBalance : newCallAmount;
+  }, [bets, players]);
 
-  const handleHandEnd = () => {
-    calculateWinnings();
+  const pacePlayerIndex = useMemo(
+    () => bets[currentRound].indexOf(paceAmount),
+    [paceAmount]
+  );
 
-    dispatch(
-      updatePlayer({
-        ...players[winnerIndex],
-        balance: (players[winnerIndex].balance += potAmount),
-      })
+  //end game state vars
+
+  //ux state variables
+  const [playerSelected, setPlayerSelected] = useState(null);
+  const [promptWinnerSelection, setPrompWinnerSelection] = useState(false);
+  const [winnerModalVisible, setWinnerModalVisible] = useState(false);
+  const [winningPlayer, setWinningPlayer] = useState(null);
+  const [winnerAlertVisible, setWinnerAlertVisible] = useState(false);
+
+  const handleNewHand = () => {
+    const playerCredits = players.reduce(
+      (array, player) => [
+        ...array,
+        Math.max(0, player.currentBet - winningPlayer.currentBet),
+      ],
+      []
     );
-    console.log(`BOOM HAND WON BY ${players[winnerIndex].name}`);
-    console.log(`bet array ${bets}`);
 
-    dispatch(
-      updatePlayer(
-        //reset all folded status except those who are bankrupt
-        players.map((player) =>
-          player.balance ? { ...player, folded: false } : player
-        )
-      )
-    );
-    setPromptWinner(false);
-  };
+    const winnings =
+      potAmount - playerCredits.reduce((total, credits) => total + credits, 0);
 
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener("keyboardWillShow", () => {
-      setKeyboardStatus(true);
-    });
-    const hideSubscription = Keyboard.addListener("keyboardWillHide", () => {
-      setKeyboardStatus(false);
-    });
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
-
-  useEffect(() => {
-    setBetAmount(callAmount);
-  }, [callAmount, activePlayerIndex]);
-
-  useEffect(() => {
-    console.log(activePlayerIndex === hand.startingPlayerIndex && !callAmount)
-
-    if (activePlayerIndex === pacePlayerIndex ) {
-      setBets((bets) => [...bets, players.map(() => 0)]);
-      setPacePlayerIndex(null);
-      setCurrentRound((round) => (round += 1));
-      setReraise(players.map(() => 0));
-    }
-
-    //if all players but one have folded
-    if (players.filter(({ folded }) => !folded).length === 1) handleHandEnd();
-
-    //if all players have gone all-in prompt for winner selection
-    if (
-      players.filter(({ balance, folded }) => !!balance && !folded).length === 0
-    )
-      setPromptWinner(true);
-
-
-  }, [activePlayerIndex]);
-
-  const handleBet = (type) => {
-    Keyboard.dismiss();
-
-    if (type === "fold") {
-      dispatch(updatePlayer({ index: activePlayerIndex, folded: true }));
-    } else {
-      setBets((bets) => {
-        bets[currentRound - 1][activePlayerIndex] += betAmount;
-        return [...bets];
-      });
-
-      setPotAmount((amount) => (amount += betAmount));
-
-      if (betAmount > callAmount) {
-        setReraise((state) => {
-          state[activePlayerIndex] += 1;
-          return [...state];
-        });
-        setPacePlayerIndex(activePlayerIndex);
-      }
+    players.forEach((player, index) => {
+      const credit =
+        player.id === winningPlayer.id ? winnings : playerCredits[index];
 
       dispatch(
         updatePlayer({
-          index: activePlayerIndex,
-          currentBet: players[activePlayerIndex].currentBet + betAmount,
-          balance: players[activePlayerIndex].balance - betAmount,
+          ...player,
+          balance: player.balance + credit, //calculateWinnings();
         })
       );
+    });
+
+    setWinnerAlertVisible(false); //close winner alert
+    setBets([players.map(() => null)]); //reset bets
+    setReraise(players.map(() => 0)); //reset reraise counts
+    setCurrentHand((state) => (state += 1)); // up hand count
+
+    dispatch(resetPlayers(rotatingDealer));
+    dispatch(nextDealer());
+  };
+
+  const handleNewRound = () => {
+    if (currentRound === maxRounds - 1) {
+      setPrompWinnerSelection(true);
+      return;
     }
 
-    setActivePlayerIndex((index) => {
-      let nextIndex = null;
-
-      for (var i = 0; i < players.length; i++) {
-        var pointer =
-          (i + index === players.length - 1 ? 0 : index + 1) % players.length;
-
-        if (pointer === pacePlayerIndex) {
-          nextIndex = hand.startingPlayerIndex;
-          break;
-        }
-
-        if (!players[pointer].folded) {
-          nextIndex = pointer;
-          break;
-        }
-      }
-
-      return nextIndex;
+    setBets((bets) => [...bets, players.map(() => null)]);
+    setReraise(players.map(() => 0));
+    players.map((player) => {
+      if (
+        (player.status === "check" || player.status === "bet") &&
+        player.balance
+      )
+        dispatch(updatePlayer({ ...player, status: "ready" }));
     });
+  };
+
+  const handleHandEnd = (player) => {
+    setPrompWinnerSelection(false);
+    setWinnerModalVisible(false);
+
+    setWinningPlayer(player);
+    setWinnerAlertVisible(true);
+  };
+
+  useEffect(() => {
+    const remainingPlayers = players.filter(
+      ({ status }) => status !== "fold" && status !== "out"
+    );
+
+    //everyone but 1 person folded
+    if (remainingPlayers.length === 1) {
+      //console.log("everyone is out or folded but 1 person");
+      handleHandEnd(remainingPlayers[0]);
+    } else if (remainingPlayers.every(({ status }) => status === "check")) {
+      //console.log("all players checked");
+      handleNewRound();
+      return;
+    } else if (
+      !remainingPlayers.some(
+        ({ status }) => status === "ready" || status === "check"
+      )
+    ) {
+      //console.log("everyone has made an action");
+
+      const awaitingPlayers = players.filter(
+        ({ balance, status }, index) =>
+          bets[currentRound][index] < paceAmount &&
+          status !== "fold" &&
+          status !== "out" &&
+          balance
+      );
+
+      if (!awaitingPlayers.length) {
+        //console.log("no more betting in this round");
+
+        if (remainingPlayers.filter(({ balance }) => !!balance).length === 1) {
+          console.log("everyone is all-in except 1 person");
+          setPrompWinnerSelection(true);
+          return;
+        }
+
+        //console.log("betting continues");
+        handleNewRound();
+      }
+    }
+  }, [bets]);
+
+  const handleBet = (type, amount) => {
+    Keyboard.dismiss();
+
+    dispatch(bet({ amount, type }));
+
+    setBets((bets) => {
+      bets[currentRound][activePlayerIndex] += amount;
+      return [...bets];
+    });
+
+    if (amount > callAmount) {
+      setReraise((state) => {
+        state[activePlayerIndex] += 1;
+        return [...state];
+      });
+    }
   };
 
   return (
@@ -202,19 +206,19 @@ export default Game = () => {
           <View
             style={{
               flexDirection: "row",
-              columnGap: 10,
+              columnGap: 20,
               alignItems: "center",
               paddingHorizontal: 20,
               paddingVertical: 10,
             }}
           >
-            <View style={{ width: 20 }}></View>
+            <View style={{ width: 30 }}></View>
             <View style={{ flex: 1 }}>
               <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
                 NAME
               </ThemedText>
             </View>
-            <View style={{ width: 60 }}>
+            <View style={{ width: 50 }}>
               <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
                 BET
               </ThemedText>
@@ -228,7 +232,6 @@ export default Game = () => {
           <ScrollView
             style={{
               flex: 1,
-              paddingHorizontal: 20,
               flexBasis: "auto",
               backgroundColor: useThemeColor({}, "background"),
               zIndex: 1,
@@ -236,13 +239,12 @@ export default Game = () => {
           >
             {players.map((player, index) => (
               <PlayerRow
-                disabled={player.folded || !promptWinner}
-                isTurn={activePlayerIndex === index}
+                promptWinner={promptWinnerSelection}
+                isTurn={player.inTheGun && !promptWinnerSelection}
                 player={player}
                 key={player.id}
-                isDealer={hand.dealerIndex === index}
                 onPress={() => {
-                  setWinnerIndex(index);
+                  setPlayerSelected(players[index]);
                   setWinnerModalVisible(true);
                 }}
                 isLast={index === players.length - 1}
@@ -270,7 +272,7 @@ export default Game = () => {
                   lineHeight: 80,
                 }}
               >
-                {currentRound}
+                {currentRound + 1}
               </ThemedText>
               <ThemedText>Round</ThemedText>
             </View>
@@ -313,246 +315,46 @@ export default Game = () => {
               <ThemedText>Hand</ThemedText>
             </View>
           </View>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={headerHeight + 40}
-          >
-            <View
-              style={{ padding: 20, gap: 20, opacity: promptWinner ? 0.2 : 1 }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  gap: 10,
-                  // paddingVertical: 20,
-                }}
-              >
-                <ThemedButton
-                  type="circle"
-                  disabled={betAmount === callAmount}
-                  style={{ opacity: betAmount === callAmount ? 0.5 : 1 }}
-                  onPress={() => {
-                    setBetAmount(callAmount);
-                  }}
-                >
-                  MIN
-                </ThemedButton>
-                <ThemedButton
-                  type="circle"
-                  onPress={() => setBetAmount((count) => count - 1)}
-                  style={{ opacity: betAmount <= callAmount ? 0.5 : 1 }}
-                  disabled={betAmount <= callAmount}
-                >
-                  <FontAwesome6
-                    name="minus"
-                    color={useThemeColor({}, "buttonText")}
-                    size={20}
-                  />
-                </ThemedButton>
-                <TextInput
-                  style={{
-                    flexGrow: 1,
-                    color: useThemeColor({}, "text"),
-                    fontSize: 40,
-                    textAlign: "center",
-                    minWidth: 0,
-                  }}
-                  keyboardType="numeric"
-                  value={`${betAmount}`}
-                  textAlign="center"
-                  onChangeText={(text) => {
-                    let newText = parseInt(text.replace(/[^0-9]/, ""));
-
-                    if (!text) newText = 0;
-                    if (newText > players[activePlayerIndex].balance)
-                      newText = players[activePlayerIndex].balance;
-
-                    setBetAmount(newText);
-                  }}
-                  textContentType="none"
-                  maxLength={3}
-                  inputMode="numeric"
-                />
-                <ThemedButton
-                  type="circle"
-                  style={{
-                    opacity:
-                      reraise[activePlayerIndex] >= maxReraise ||
-                      betAmount >= players[activePlayerIndex].balance
-                        ? 0.5
-                        : 1,
-                  }}
-                  disabled={
-                    reraise[activePlayerIndex] >= maxReraise ||
-                    betAmount >= players[activePlayerIndex].balance
-                  }
-                  onPress={(event) =>
-                    setBetAmount((count) => {
-                      return count + 1;
-                    })
-                  }
-                >
-                  <FontAwesome6
-                    name="plus"
-                    color={useThemeColor({}, "buttonText")}
-                    size={20}
-                  />
-                </ThemedButton>
-                <ThemedButton
-                  disabled={betAmount === players[activePlayerIndex].balance}
-                  style={{
-                    opacity:
-                      betAmount === players[activePlayerIndex].balance
-                        ? 0.5
-                        : 1,
-                  }}
-                  type="circle"
-                  onPress={() => {
-                    setBetAmount(players[activePlayerIndex].balance);
-                  }}
-                >
-                  MAX
-                </ThemedButton>
-              </View>
-              <View style={{ gap: 10 }}>
-                <View style={{ flexDirection: "row" }}>
-                  <ThemedButton
-                    style={{
-                      flex: 1,
-                      opacity:
-                        betAmount < callAmount || (!callAmount && !betAmount)
-                          ? 0.5
-                          : 1,
-                    }}
-                    onPress={() => handleBet("bet")}
-                    disabled={
-                      betAmount < callAmount || (!callAmount && !betAmount)
-                    }
-                  >
-                    {betAmount === callAmount && callAmount ? "CALL" : ""}
-                    {betAmount > callAmount && callAmount ? "RAISE" : ""}
-                    {!callAmount ? "BET" : ""}
-                  </ThemedButton>
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  {callAmount ? (
-                    <ThemedButton
-                      type="danger"
-                      style={{
-                        flex: 1,
-                      }}
-                      onPress={() => handleBet("fold")}
-                    >
-                      FOLD
-                    </ThemedButton>
-                  ) : (
-                    <ThemedButton
-                      disabled={callAmount}
-                      style={{
-                        flex: 1,
-                        opacity: callAmount ? 0.5 : 1,
-                      }}
-                      onPress={() => handleBet("bet")}
-                    >
-                      CHECK
-                    </ThemedButton>
-                  )}
-                </View>
-              </View>
-            </View>
-            {promptWinner && (
-              <View
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <ThemedText
-                  style={{ fontSize: 40, lineHeight: 40, textAlign: "center" }}
-                >
-                  Select Winner
-                </ThemedText>
-              </View>
-            )}
-          </KeyboardAvoidingView>
+          <BettingControls
+            activePlayerBalance={players[activePlayerIndex].balance}
+            callAmount={callAmount}
+            handleBet={handleBet}
+            promptWinnerSelection={promptWinnerSelection}
+            maxRaiseReached={reraise[activePlayerIndex] >= maxReraise}
+            activePlayerIndex={activePlayerIndex}
+          />
         </View>
       </SafeAreaView>
       <WinnerConfirmModal
-        player={players[winnerIndex]}
+        player={playerSelected}
         animationType="fade"
         transparent={true}
         visible={winnerModalVisible}
         handleCancel={() => setWinnerModalVisible(false)}
         handleConfirm={() => {
-          handleHandEnd();
-          setWinnerModalVisible(false);
+          handleHandEnd(playerSelected);
         }}
         onRequestClose={() => {
           setWinnerModalVisible(false);
         }}
         onDismiss={() => {
-          console.log("modal closed");
+          //console.log("modal closed");
         }}
       />
+      <ThemedModal
+        animationType="fade"
+        transparent={true}
+        visible={winnerAlertVisible}
+      >
+        {winningPlayer && (
+          <ThemedView style={{ gap: 20 }}>
+            <Avatar player={winningPlayer.avatar} size={100} />
+            <ThemedText type="title">{winningPlayer.name} Wins</ThemedText>
+            <ThemedText type="subtitle">Pot Total {potAmount}</ThemedText>
+            <ThemedButton onPress={handleNewHand}>New Hand</ThemedButton>
+          </ThemedView>
+        )}
+      </ThemedModal>
     </ThemedView>
   );
 };
-
-const styles = StyleSheet.create({
-  playerRow: {
-    height: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    columnGap: 20,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderWidth: 1,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 0,
-    flexBasis: 40,
-  },
-  itemLabel: {
-    opacity: 0.5,
-  },
-  position: {},
-  name: {
-    flex: 1,
-  },
-  balance: {
-    width: 100,
-    flex: 0,
-  },
-  itemSeparator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: "rgba(0,0,0,0.2)",
-  },
-  inputRow: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    columnGap: 16,
-    height: 60,
-  },
-  input: {
-    height: "100%",
-    backgroundColor: "#fff",
-    color: "#000",
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingLeft: 20,
-    flex: 1,
-    width: "100%",
-    fontSize: 20,
-  },
-});

@@ -11,10 +11,15 @@ import { ThemedView } from "../ThemedView";
 
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useSelector, useDispatch } from "react-redux";
-import { removePlayer } from "@/features/slices/playersSlice";
+import { removePlayer, reorderPlayers } from "@/features/slices/playersSlice";
 import AddPlayerFormModal from "./AddPlayerFormModal";
 import EditPlayerFormModal from "./EditPlayerFormModal";
 import PlayerRow from "./PlayerRow";
+import DraggableFlatList from "react-native-draggable-flatlist";
+
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedButton } from "../ThemedButton";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 export default Players = () => {
   const players = useSelector((state) => state.players);
@@ -42,12 +47,7 @@ export default Players = () => {
       <ThemedView style={{ flex: 1 }}>
         <SafeAreaView style={{ flex: 1 }}>
           <View style={{ flex: 1 }}>
-            <PlayerRow
-              item={players[0]}
-              deleteCallback={deletePlayer}
-              editCallback={editPlayer}
-            />
-            {/* <DraggableFlatList
+            <DraggableFlatList
               data={players}
               extraData={players}
               renderItem={(params) => (
@@ -61,14 +61,6 @@ export default Players = () => {
                 return item.id.toString();
               }}
               onDragEnd={({ data }) => dispatch(reorderPlayers(data))}
-              ItemSeparatorComponent={
-                <View
-                  style={{
-                    height: StyleSheet.hairlineWidth,
-                    backgroundColor: useThemeColor({}, "tint"),
-                  }}
-                />
-              }
               ref={listElement}
               onContentSizeChange={() =>
                 listElement.current.scrollToEnd({ animated: true })
@@ -107,7 +99,7 @@ export default Players = () => {
                   </ThemedButton>
                 </View>
               )}
-            /> */}
+            />
           </View>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}

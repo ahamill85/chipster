@@ -3,38 +3,64 @@ import { StyleSheet, View, TouchableOpacity } from "react-native";
 
 import { ThemedText } from "../ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { FontAwesome, FontAwesome6 } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Avatar from "../Avatar";
 
-export default PlayerRow = ({ player, isTurn, isDealer, isLast, ...rest }) => {
-  const color = useThemeColor({}, "buttonBackground");
+export default PlayerRow = ({
+  player: { avatar, name, balance, isDealer, status, currentBet },
+  isTurn,
+  isLast,
+  promptWinner,
+  ...rest
+}) => {
+  const disabled = status === "fold" || status === "out";
+  const shouldPrompt = !disabled && promptWinner 
+
+  const background = useThemeColor({}, "buttonBackground");
+  const color = useThemeColor({}, shouldPrompt ? "buttonText" : "text");
+  const highlight = useThemeColor({}, "highlight");  
+
+  const balanceText = () => {
+    if (status === "out") {
+      return "OUT";
+    } else if (balance === 0) {
+      return "ALL IN";
+    } else {
+      return balance;
+    }
+  };
 
   return (
     <>
       <TouchableOpacity
-        style={{ opacity: player.folded ? 0.5 : 1 }}
+        style={{
+          opacity: disabled ? 0.3 : 1,
+          backgroundColor: isTurn ? highlight : "transparent",
+        }}
+        disabled={disabled || !shouldPrompt}
         {...rest}
       >
         <View
           style={{
             flexDirection: "row",
-            paddingVertical: 15,
-            gap: 10,
+            paddingVertical: 10,
+            gap: 20,
+            paddingHorizontal: 15,
+            marginVertical: 5,
+            marginHorizontal: 5,
+            borderRadius: 10,
+            alignItems: "center",
+            backgroundColor: shouldPrompt ? background : "transparent",
           }}
         >
-          <View
-            style={{
-              width: 20,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {isTurn && <FontAwesome name="star" size={20} style={{ color }} />}
-          </View>
+          <Avatar size={30} source={avatar} color={color} />
           <View style={{ flex: 1, flexDirection: "row" }}>
-            <ThemedText type="subtitle">{player.name}</ThemedText>
+            <ThemedText type="default" style={{ color }}>
+              {name}
+            </ThemedText>
             {isDealer && (
-              <FontAwesome6
-                name="crown"
+              <MaterialCommunityIcons
+                name="cards"
                 size={20}
                 style={{
                   marginLeft: 10,
@@ -43,11 +69,11 @@ export default PlayerRow = ({ player, isTurn, isDealer, isLast, ...rest }) => {
               />
             )}
           </View>
-          <ThemedText type="defaultSemiBold" style={{ width: 60 }}>
-            {player.currentBet}
+          <ThemedText type="defaultSemiBold" style={{ width: 50, color }}>
+            {currentBet}
           </ThemedText>
-          <ThemedText type="defaultSemiBold" style={{ width: 60 }}>
-            {player.balance}
+          <ThemedText type="defaultSemiBold" style={{ width: 60, color }}>
+            {balanceText()}
           </ThemedText>
         </View>
       </TouchableOpacity>
@@ -62,56 +88,3 @@ export default PlayerRow = ({ player, isTurn, isDealer, isLast, ...rest }) => {
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  playerRow: {
-    height: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    columnGap: 20,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderWidth: 1,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 0,
-    flexBasis: 40,
-  },
-  itemLabel: {
-    opacity: 0.5,
-  },
-  position: {},
-  name: {
-    flex: 1,
-  },
-  balance: {
-    width: 100,
-    flex: 0,
-  },
-  itemSeparator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: "rgba(255,255,255,0.1)",
-  },
-  inputRow: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    columnGap: 16,
-    height: 60,
-  },
-  input: {
-    height: "100%",
-    backgroundColor: "#fff",
-    color: "#000",
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingLeft: 20,
-    flex: 1,
-    width: "100%",
-    fontSize: 20,
-  },
-});
