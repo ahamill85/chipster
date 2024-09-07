@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "PokerChipCounter",
-    "slug": "PokerChipCounter",
+    "name": "Chipster",
+    "slug": "chipster",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.PokerChipCounter"
+      "bundleIdentifier": "com.anonymous.Chipster"
     },
     "android": {
       "adaptiveIcon": {
