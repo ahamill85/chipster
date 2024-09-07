@@ -1,6 +1,6 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import { View, StyleSheet, Button } from "react-native";
+import { View, StyleSheet, Button, Pressable } from "react-native";
 import SetPlayers from "@/components/Players/Players";
 import SetChips from "@/components/SetChips";
 import Game from "@/components/Game/Game";
@@ -8,6 +8,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
+import { useSelector } from "react-redux";
 
 // Screens
 const WelcomeScreen = ({ navigation }) => {
@@ -43,21 +44,25 @@ const App = () => {
   const screenStyles = {
     headerStyle: {
       backgroundColor: useThemeColor({}, "background"),
+      borderWidth: 0,
     },
     headerTintColor: useThemeColor({}, "text"),
     headerTitleStyle: {
       fontWeight: "bold",
     },
-    border: 0
+    border: 0,
   };
 
+  const players = useSelector((state) => state.players);
+
   return (
-    <Stack.Navigator initialRouteName="Welcome" 
-    //screenOptions={{headerShown: false}}
+    <Stack.Navigator
+      initialRouteName="Welcome"
+      //screenOptions={{headerShown: false}}
     >
       <Stack.Screen
         name="Welcome"
-        component={Game}
+        component={WelcomeScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
@@ -65,11 +70,14 @@ const App = () => {
         component={SetPlayers}
         options={({ navigation, route }) => ({
           headerRight: () => (
-            <Button
+            <ThemedButton
+              disabled={players.length < 2}
+              style={{ color: useThemeColor({}, "text"), opacity: players.length < 2 ? 0.5 : 1 }}
+              type="headerNav"
               onPress={() => navigation.navigate("Game")}
-              title="Start Game"
-              color="#fff"
-            />
+            >
+              Start Game
+            </ThemedButton>
           ),
           title: "Set Players",
           ...screenStyles,

@@ -1,52 +1,64 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = [
-  {
-    id: 1,
-    name: "Samantha",
-    currentBet: 0,
-    balance: 100,
-    avatar: null,
-    isDealer: true,
-    status: "ready",
-    inTheGun: false,
-  },
-  {
-    id: 11,
-    name: "Anthony",
-    currentBet: 0,
-    balance: 50,
-    avatar: null,
-    isDealer: false,
-    status: "ready",
-    inTheGun: true,
-  },
-  {
-    id: 21,
-    name: "Harper",
-    currentBet: 0,
-    balance: 100,
-    avatar: null,
-    isDealer: false,
-    status: "ready",
-    inTheGun: false,
-  },
-  {
-    id: 32,
-    name: "Cameron",
-    currentBet: 0,
-    balance: 100,
-    avatar: null,
-    isDealer: false,
-    status: "ready",
-    inTheGun: false,
-  },
+  // {
+  //   id: 1,
+  //   name: "Samantha",
+  //   currentBet: 0,
+  //   balance: 100,
+  //   avatar: null,
+  //   isDealer: true,
+  //   status: "ready",
+  //   inTheGun: false,
+  // },
+  // {
+  //   id: 11,
+  //   name: "Anthony",
+  //   currentBet: 0,
+  //   balance: 50,
+  //   avatar: null,
+  //   isDealer: false,
+  //   status: "ready",
+  //   inTheGun: true,
+  // },
+  // {
+  //   id: 21,
+  //   name: "Harper",
+  //   currentBet: 0,
+  //   balance: 100,
+  //   avatar: null,
+  //   isDealer: false,
+  //   status: "ready",
+  //   inTheGun: false,
+  // },
+  // {
+  //   id: 32,
+  //   name: "Cameron",
+  //   currentBet: 0,
+  //   balance: 100,
+  //   avatar: null,
+  //   isDealer: false,
+  //   status: "ready",
+  //   inTheGun: false,
+  // },
 ];
 
 export const playersSlice = createSlice({
   name: "players",
   initialState: initialState,
   reducers: {
+    startGame: (state, action) => {
+      const dealerIndex = action.payload;
+      state[dealerIndex].isDealer = true
+
+      for (var i = 0; i < state.length; i++) {
+        const pointer = (i + dealerIndex + 1) % state.length;
+        const player = state[pointer];
+
+        player.inTheGun = true;
+        break;
+      }
+    },
     addPlayer: (state, action) => {
       state.push(action.payload);
     },
@@ -88,7 +100,7 @@ export const playersSlice = createSlice({
           player.status !== "fold" &&
           player.balance
         ) {
-          state[pointer].inTheGun = true;
+          player.inTheGun = true;
           break;
         }
       }
@@ -119,8 +131,6 @@ export const playersSlice = createSlice({
         const pointer = (i + dealerIndex + 1) % state.length;
         const player = state[pointer];
 
-        console.log(player.isDealer);
-
         if (!foundDealer) {
           player.isDealer = true;
           foundDealer = true;
@@ -132,7 +142,7 @@ export const playersSlice = createSlice({
           player.status !== "fold" &&
           player.balance
         ) {
-          state[pointer].inTheGun = true;
+          player.inTheGun = true;
           break;
         }
       }
@@ -149,6 +159,7 @@ export const {
   resetPlayers,
   nextDealer,
   bet,
+  startGame
 } = playersSlice.actions;
 
 export default playersSlice.reducer;

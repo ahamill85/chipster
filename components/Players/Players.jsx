@@ -20,6 +20,7 @@ import DraggableFlatList from "react-native-draggable-flatlist";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedButton } from "../ThemedButton";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { ThemedText } from "../ThemedText";
 
 export default Players = () => {
   const players = useSelector((state) => state.players);
@@ -67,8 +68,10 @@ export default Players = () => {
               }
               containerStyle={{ flex: 1 }}
               contentContainerStyle={{
-                flexGrow: 1,
+                flex: 1,
+                heigth: 500,
               }}
+              style={{ flex: 1 }}
               activationDistance={20}
               ListEmptyComponent={() => (
                 <View
@@ -83,37 +86,22 @@ export default Players = () => {
                   </ThemedText>
                 </View>
               )}
-              ListFooterComponent={() => (
-                <View style={{ padding: 20 }}>
-                  <ThemedButton
-                    onPress={() => setFormState("add")}
-                    icon={
-                      <FontAwesome6
-                        name="plus"
-                        size="24"
-                        color={useThemeColor({}, "buttonText")}
-                      />
-                    }
-                  >
-                    Add Player
-                  </ThemedButton>
-                </View>
-              )}
             />
+            <View style={{ padding: 20 }}>
+              <ThemedButton
+                onPress={() => setFormState("add")}
+                icon={
+                  <FontAwesome6
+                    name="plus"
+                    size="24"
+                    color={useThemeColor({}, "buttonText")}
+                  />
+                }
+              >
+                Add Player
+              </ThemedButton>
+            </View>
           </View>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={headerHeight + 20}
-          >
-            <View
-              style={{
-                flex: 0,
-                rowGap: 16,
-                paddingTop: 20,
-                paddingHorizontal: 20,
-              }}
-            ></View>
-          </KeyboardAvoidingView>
         </SafeAreaView>
       </ThemedView>
       <AddPlayerFormModal

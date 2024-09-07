@@ -21,12 +21,13 @@ export default AddPlayerFormModal = ({ handleClose, ...rest }) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
-      aspect: [4, 4],
+      aspect: [1, 1],
       quality: 0,
+      base64: true,
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      setImage("data:image/jpeg;base64," + result.assets[0].base64);
     }
   };
 
@@ -34,16 +35,21 @@ export default AddPlayerFormModal = ({ handleClose, ...rest }) => {
 
   const dispatch = useDispatch();
 
+  const defaults = {
+    currentBet: 0,
+    balance: 100,
+    isDealer: false,
+    status: "ready",
+    inTheGun: false,
+  };
+
   const handleAddPlayer = () => {
     if (playerName) {
       dispatch(
         addPlayer({
+          ...defaults,
           name: playerName,
-          balance: 100,
           id: nanoid(),
-          currentBet: 0,
-          folded: false,
-          balance: 100,
           avatar: image,
         })
       );
@@ -57,7 +63,7 @@ export default AddPlayerFormModal = ({ handleClose, ...rest }) => {
   const buttonText = useThemeColor({}, "buttonText");
 
   return (
-    <Modal {...rest}>
+    <Modal {...rest} onShow={() => inputField.current.focus() }>
       <View style={styles.backdrop}>
         <ThemedView style={styles.modal}>
           <View>
@@ -118,11 +124,20 @@ export default AddPlayerFormModal = ({ handleClose, ...rest }) => {
             <ThemedButton
               disabled={!playerName}
               style={{ opacity: !playerName ? 0.5 : 1 }}
-              onPress={handleAddPlayer}
+              onPress={() => {
+                setImage(null);
+                handleAddPlayer();
+              }}
             >
-              Add Players
+              Add Player
             </ThemedButton>
-            <ThemedButton type="danger" onPress={handleClose}>
+            <ThemedButton
+              type="danger"
+              onPress={() => {
+                setImage(null);
+                handleClose();
+              }}
+            >
               Cancel
             </ThemedButton>
           </View>

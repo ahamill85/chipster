@@ -1,11 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-  ScrollView,
-  Keyboard,
-} from "react-native";
+import { SafeAreaView, View, ScrollView, Keyboard } from "react-native";
 
 import { ThemedText } from "../ThemedText";
 import { ThemedView } from "../ThemedView";
@@ -18,29 +12,22 @@ import {
   resetPlayers,
   nextDealer,
   bet,
+  startGame,
 } from "@/features/slices/playersSlice";
 import PlayerRow from "./PlayerRow";
 import WinnerConfirmModal from "./WinnerConfirmModal";
 import ThemedModal from "../ThemedModal";
 import Avatar from "../Avatar";
 import BettingControls from "./BettingControls";
+import Stats from "./Stats";
 
 const maxReraise = 1;
 const maxRounds = 5;
 const rotatingDealer = true;
-
-const HorizontalRule = () => (
-  <View
-    style={{
-      width: StyleSheet.hairlineWidth,
-      backgroundColor: useThemeColor({}, "tint"),
-    }}
-  />
-);
+const startingDealer = 0;
 
 export default Game = () => {
   const players = useSelector((state) => state.players);
-  //const hand = useSelector((state) => state.hand);
 
   const dispatch = useDispatch();
 
@@ -49,7 +36,9 @@ export default Game = () => {
   const [bets, setBets] = useState([players.map(() => null)]);
   const [reraise, setReraise] = useState(players.map(() => 0));
 
-  const activePlayerIndex = players.findIndex(({ inTheGun }) => inTheGun);
+  const activePlayerIndex = players.findIndex(({ inTheGun }) =>
+    inTheGun ? inTheGun : 0
+  );
   const currentRound = bets.length - 1;
   const paceAmount = Math.max(...bets[currentRound]);
   const potAmount = bets.reduce(
@@ -59,6 +48,7 @@ export default Game = () => {
   );
 
   const callAmount = useMemo(() => {
+    if (activePlayerIndex < 0) return 0;
     const currentBet = bets[currentRound][activePlayerIndex];
     const playerBalance = players[activePlayerIndex].balance;
     const newCallAmount = paceAmount - currentBet;
@@ -79,6 +69,10 @@ export default Game = () => {
   const [winnerModalVisible, setWinnerModalVisible] = useState(false);
   const [winningPlayer, setWinningPlayer] = useState(null);
   const [winnerAlertVisible, setWinnerAlertVisible] = useState(false);
+
+  const handleStartGame = () => {
+    dispatch(startGame(startingDealer));
+  };
 
   const handleNewHand = () => {
     const playerCredits = players.reduce(
@@ -251,78 +245,27 @@ export default Game = () => {
               />
             ))}
           </ScrollView>
-          <View
-            style={{
-              flexDirection: "row",
-              paddingHorizontal: 20,
-              gap: 10,
-            }}
-          >
-            <View
-              style={{
-                flex: 3,
-                alignItems: "center",
-                gap: 10,
-                justifyContent: "flex-end",
-              }}
-            >
-              <ThemedText
-                style={{
-                  fontSize: 80,
-                  lineHeight: 80,
-                }}
-              >
-                {currentRound + 1}
-              </ThemedText>
-              <ThemedText>Round</ThemedText>
+          {activePlayerIndex > 0 ? (
+            <>
+              <Stats
+                currentHand={currentHand}
+                currentRound={currentRound}
+                potAmount={potAmount}
+              />
+              <BettingControls
+                activePlayerBalance={players[activePlayerIndex].balance}
+                callAmount={callAmount}
+                handleBet={handleBet}
+                promptWinnerSelection={promptWinnerSelection}
+                maxRaiseReached={reraise[activePlayerIndex] >= maxReraise}
+                activePlayerIndex={activePlayerIndex}
+              />
+            </>
+          ) : (
+            <View style={{ flex: 1, padding: 20, justifyContent: "flex-end" }}>
+              <ThemedButton onPress={handleStartGame}>Start Game</ThemedButton>
             </View>
-            <HorizontalRule />
-            <View
-              style={{
-                flex: 6,
-                alignItems: "center",
-                gap: 10,
-                justifyContent: "flex-end",
-              }}
-            >
-              <ThemedText
-                style={{
-                  fontSize: 80,
-                  lineHeight: 80,
-                }}
-              >
-                {potAmount}
-              </ThemedText>
-              <ThemedText>Pot</ThemedText>
-            </View>
-            <HorizontalRule />
-            <View
-              style={{
-                flex: 3,
-                alignItems: "center",
-                gap: 10,
-                justifyContent: "flex-end",
-              }}
-            >
-              <ThemedText
-                style={{
-                  fontSize: 80,
-                  lineHeight: 80,
-                }}
-              >
-                {currentHand}
-              </ThemedText>
-              <ThemedText>Hand</ThemedText>
-            </View>
-          </View>
-          <BettingControls
-            activePlayerBalance={players[activePlayerIndex].balance}
-            callAmount={callAmount}
-            handleBet={handleBet}
-            promptWinnerSelection={promptWinnerSelection}
-            maxRaiseReached={reraise[activePlayerIndex] >= maxReraise}
-            activePlayerIndex={activePlayerIndex}
-          />
+          )}
         </View>
       </SafeAreaView>
       <WinnerConfirmModal

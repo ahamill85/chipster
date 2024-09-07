@@ -31,7 +31,7 @@ export function ThemedButton({
       {...rest}
     >
       {icon}
-      <Text style={{ color, ...textStyle }}>{children}</Text>
+      <Text style={[{ color, ...textStyle }, style]}>{children}</Text>
     </TouchableOpacity>
   );
 }
@@ -48,6 +48,7 @@ const buttonBase = {
 
 const textBase = {
   fontSize: 24,
+  textAlign: "center",
 };
 
 const button = StyleSheet.create({
@@ -59,6 +60,11 @@ const button = StyleSheet.create({
   },
   small: {
     ...buttonBase,
+    height: 30,
+  },
+  headerNav: {
+    ...buttonBase,
+    backgroundColor: "transparent",
   },
   outline: {
     ...buttonBase,
@@ -92,7 +98,14 @@ const text = StyleSheet.create({
   },
   small: {
     ...textBase,
-    fontSize: 14,
+    fontSize: 16,
+    fontWeight: "bold",
+    lineHeight: 18,
+  },
+  headerNav: {
+    ...textBase,
+    fontSize: 18,
+    fontWeight: "bold",
     lineHeight: 18,
   },
   outline: {
