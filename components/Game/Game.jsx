@@ -74,7 +74,7 @@ export default Game = () => {
     dispatch(startGame(startingDealer));
   };
 
-  const handleNewHand = () => {
+  const calculatedWinnings = () => {
     const playerCredits = players.reduce(
       (array, player) => [
         ...array,
@@ -83,8 +83,14 @@ export default Game = () => {
       []
     );
 
-    const winnings =
-      potAmount - playerCredits.reduce((total, credits) => total + credits, 0);
+    return [
+      potAmount - playerCredits.reduce((total, credits) => total + credits, 0),
+      playerCredits,
+    ];
+  };
+
+  const handleNewHand = () => {
+    const [winnings, playerCredits] = calculatedWinnings();
 
     players.forEach((player, index) => {
       const credit =
@@ -245,7 +251,11 @@ export default Game = () => {
               />
             ))}
           </ScrollView>
-          {activePlayerIndex > 0 ? (
+          {activePlayerIndex < 0 ? (
+            <View style={{ flex: 1, padding: 20, justifyContent: "flex-end" }}>
+              <ThemedButton onPress={handleStartGame}>Start Game</ThemedButton>
+            </View>
+          ) : (
             <>
               <Stats
                 currentHand={currentHand}
@@ -261,10 +271,6 @@ export default Game = () => {
                 activePlayerIndex={activePlayerIndex}
               />
             </>
-          ) : (
-            <View style={{ flex: 1, padding: 20, justifyContent: "flex-end" }}>
-              <ThemedButton onPress={handleStartGame}>Start Game</ThemedButton>
-            </View>
           )}
         </View>
       </SafeAreaView>
@@ -275,6 +281,7 @@ export default Game = () => {
         visible={winnerModalVisible}
         handleCancel={() => setWinnerModalVisible(false)}
         handleConfirm={() => {
+          setPrompWinnerSelection(false);
           handleHandEnd(playerSelected);
         }}
         onRequestClose={() => {
@@ -291,9 +298,13 @@ export default Game = () => {
       >
         {winningPlayer && (
           <ThemedView style={{ gap: 20 }}>
-            <Avatar player={winningPlayer.avatar} size={100} />
-            <ThemedText type="title">{winningPlayer.name} Wins</ThemedText>
-            <ThemedText type="subtitle">Pot Total {potAmount}</ThemedText>
+            <View style={{ alignItems: "center", gap: 10 }}>
+              <Avatar source={winningPlayer.avatar} size={160} />
+              <ThemedText type="title">{winningPlayer.name} Wins</ThemedText>
+              <ThemedText type="subtitle">
+                Total Win - {calculatedWinnings()[0]}
+              </ThemedText>
+            </View>
             <ThemedButton onPress={handleNewHand}>New Hand</ThemedButton>
           </ThemedView>
         )}

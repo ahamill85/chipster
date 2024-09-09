@@ -5,7 +5,11 @@ import { ThemedText } from "../ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Avatar from "../Avatar";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 export default PlayerRow = ({
   player: { avatar, name, balance, isDealer, status, currentBet },
@@ -21,19 +25,22 @@ export default PlayerRow = ({
   const color = useThemeColor({}, shouldPrompt ? "buttonText" : "text");
   const highlight = useThemeColor({}, "highlight");
 
+  const rowOpacity = () => {
+    if (status === "fold") return 0.6;
+    if (status === "out") return 0.2;
+    return 1;
+  }
+
   const balanceText = () => {
-    if (status === "out") {
-      return "OUT";
-    } else if (balance === 0) {
-      return "ALL IN";
-    } else {
-      return balance;
-    }
+    if (status === "out") return "OUT";
+    if (status === "fold") return "FOLD"
+    if (balance === 0) return "ALL IN";
+    return balance;
   };
 
   const rowBackground = useSharedValue("transparent");
 
-  const animatedStyles = useAnimatedStyle(() => ({
+  const backgroundTransition = useAnimatedStyle(() => ({
     backgroundColor: rowBackground.value,
   }));
 
@@ -45,14 +52,12 @@ export default PlayerRow = ({
     <>
       <TouchableOpacity
         style={{
-          opacity: disabled ? 0.3 : 1,
-          //backgroundColor: isTurn ? highlight : "transparent",
+          opacity: rowOpacity(),
         }}
         disabled={disabled || !shouldPrompt}
         {...rest}
       >
-        <Animated.View style={animatedStyles}>
-          
+        <Animated.View style={backgroundTransition}>
           <View
             style={{
               flexDirection: "row",
@@ -66,7 +71,7 @@ export default PlayerRow = ({
               backgroundColor: shouldPrompt ? background : "transparent",
             }}
           >
-            <Avatar size={30} source={avatar} color={color} />
+            <Avatar size={50} source={avatar} color={color} />
             <View style={{ flex: 1, flexDirection: "row" }}>
               <ThemedText type="default" style={{ color }}>
                 {name}

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -22,6 +22,8 @@ import { ThemedButton } from "../ThemedButton";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { ThemedText } from "../ThemedText";
 
+import { updatePlayer } from "@/features/slices/playersSlice";
+
 export default Players = () => {
   const players = useSelector((state) => state.players);
 
@@ -32,8 +34,6 @@ export default Players = () => {
   const [formState, setFormState] = useState("");
   const [activeEditPlayer, setActiveEditPlayer] = useState(null);
 
-  const headerHeight = useHeaderHeight();
-
   const deletePlayer = (player) => {
     dispatch(removePlayer(player.id));
   };
@@ -42,6 +42,13 @@ export default Players = () => {
     setActiveEditPlayer(player);
     setFormState("edit");
   };
+
+  //reset for dev purposes
+  useEffect(() => {
+    players.map((player) => {
+      dispatch(updatePlayer({ ...player, balance: 100, status: "ready", inTheGun: false, isDealer: false }));
+    });
+  }, []);
 
   return (
     <>
@@ -66,12 +73,9 @@ export default Players = () => {
               onContentSizeChange={() =>
                 listElement.current.scrollToEnd({ animated: true })
               }
-              containerStyle={{ flex: 1 }}
-              contentContainerStyle={{
-                flex: 1,
-                heigth: 500,
-              }}
               style={{ flex: 1 }}
+              containerStyle={{ flex: 1 }}
+              contentContainerStyle={{ flexGrow: 1 }}
               activationDistance={20}
               ListEmptyComponent={() => (
                 <View
@@ -86,6 +90,12 @@ export default Players = () => {
                   </ThemedText>
                 </View>
               )}
+              ListEmptyComponentStyle={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                height: 500,
+              }}
             />
             <View style={{ padding: 20 }}>
               <ThemedButton

@@ -11,6 +11,7 @@ import SwipeableItem, {
 import { ThemedView } from "../ThemedView";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { ThemedText } from "../ThemedText";
+import Avatar from "../Avatar";
 
 const QuickActions = ({ player, editItem, deleteItem }) => {
   const { close } = useSwipeableItemParams();
@@ -94,18 +95,7 @@ export default PlayerRow = ({
                   backgroundColor: useThemeColor({}, "buttonBackground"),
                 }}
               >
-                {item.avatar ? (
-                  <Image
-                    style={{ width: 50, height: 50, borderRadius: 50 }}
-                    source={{ uri: item.avatar }}
-                  />
-                ) : (
-                  <FontAwesome6
-                    name="user-large"
-                    size={30}
-                    color={buttonText}
-                  />
-                )}
+                <Avatar size={50} source={item.avatar} />
               </ThemedView>
               <ThemedView style={styles.name}>
                 <ThemedText type="subtitle">{item.name}</ThemedText>

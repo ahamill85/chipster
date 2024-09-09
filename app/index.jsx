@@ -23,9 +23,14 @@ const WelcomeScreen = ({ navigation }) => {
       <View style={{ paddingHorizontal: 20, rowGap: 20 }}>
         <ThemedText
           type="title"
-          style={{ textAlign: "center", marginBottom: 20 }}
+          style={{
+            textAlign: "center",
+            marginBottom: 20,
+            fontSize: 50,
+            lineHeight: 50,
+          }}
         >
-          Poker Chip Counter
+          CHIPSTER
         </ThemedText>
         <View>
           <ThemedButton onPress={() => navigation.navigate("Set Players")}>
@@ -45,12 +50,16 @@ const App = () => {
     headerStyle: {
       backgroundColor: useThemeColor({}, "background"),
       borderWidth: 0,
+      shadowRadius: 0,
+      shadowOffset: {
+        height: 0,
+      },
     },
     headerTintColor: useThemeColor({}, "text"),
     headerTitleStyle: {
       fontWeight: "bold",
     },
-    border: 0,
+    borderWidth: 0,
   };
 
   const players = useSelector((state) => state.players);
@@ -72,7 +81,10 @@ const App = () => {
           headerRight: () => (
             <ThemedButton
               disabled={players.length < 2}
-              style={{ color: useThemeColor({}, "text"), opacity: players.length < 2 ? 0.5 : 1 }}
+              style={{
+                color: useThemeColor({}, "text"),
+                opacity: players.length < 2 ? 0.5 : 1,
+              }}
               type="headerNav"
               onPress={() => navigation.navigate("Game")}
             >

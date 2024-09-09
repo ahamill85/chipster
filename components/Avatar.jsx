@@ -3,17 +3,17 @@ import { Image } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default Avatar = ({
-  image,
+  source,
   size,
   style,
   color = useThemeColor({}, "buttonBackground"),
 }) => {
   return (
     <>
-      {image ? (
+      {source ? (
         <Image
           style={{ width: size, height: size, borderRadius: size, ...style }}
-          source={{ uri: winningPlayer.avatar }}
+          source={{ uri: source }}
         />
       ) : (
         <FontAwesome
