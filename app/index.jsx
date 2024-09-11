@@ -9,6 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { useSelector } from "react-redux";
+import AddContactFormModal from "@/components/Players/AddContactFormModal";
 
 // Screens
 const WelcomeScreen = ({ navigation }) => {
@@ -33,7 +34,7 @@ const WelcomeScreen = ({ navigation }) => {
           CHIPSTER
         </ThemedText>
         <View>
-          <ThemedButton onPress={() => navigation.navigate("Set Players")}>
+          <ThemedButton onPress={() => navigation.navigate("players")}>
             New Game
           </ThemedButton>
         </View>
@@ -66,16 +67,16 @@ const App = () => {
 
   return (
     <Stack.Navigator
-      initialRouteName="Welcome"
+      initialRouteName="welcome"
       //screenOptions={{headerShown: false}}
     >
       <Stack.Screen
-        name="Welcome"
+        name="welcome"
         component={WelcomeScreen}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, title: "Home" }}
       />
       <Stack.Screen
-        name="Set Players"
+        name="players"
         component={SetPlayers}
         options={({ navigation, route }) => ({
           headerRight: () => (
@@ -86,25 +87,18 @@ const App = () => {
                 opacity: players.length < 2 ? 0.5 : 1,
               }}
               type="headerNav"
-              onPress={() => navigation.navigate("Game")}
+              onPress={() => navigation.navigate("game")}
             >
               Start Game
             </ThemedButton>
           ),
           title: "Set Players",
+          safeAreaInsets: 0,
           ...screenStyles,
         })}
       />
       <Stack.Screen
-        name="Set Chips"
-        component={SetChips}
-        options={{
-          title: "Set Chips",
-          ...screenStyles,
-        }}
-      />
-      <Stack.Screen
-        name="Game"
+        name="game"
         component={Game}
         options={{
           headerShown: false,

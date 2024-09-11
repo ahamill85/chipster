@@ -9,7 +9,6 @@ import SwipeableItem, {
   useSwipeableItemParams,
 } from "react-native-swipeable-item";
 import { ThemedView } from "../ThemedView";
-import { FontAwesome6 } from "@expo/vector-icons";
 import { ThemedText } from "../ThemedText";
 import Avatar from "../Avatar";
 
@@ -88,23 +87,24 @@ export default PlayerRow = ({
       <ScaleDecorator>
         <ShadowDecorator>
           <Pressable onLongPress={drag} disabled={isActive}>
-            <ThemedView style={styles.item}>
-              <ThemedView
-                style={{
-                  ...styles.avatar,
-                  backgroundColor: useThemeColor({}, "buttonBackground"),
-                }}
-              >
-                <Avatar size={50} source={item.avatar} />
-              </ThemedView>
-              <ThemedView style={styles.name}>
-                <ThemedText type="subtitle">{item.name}</ThemedText>
+            <ThemedView
+              style={{
+                height: 80,
+                flexDirection: "row",
+                alignItems: "center",
+                padding: 20,
+                columnGap: 20,
+              }}
+            >
+              <Avatar size={50} source={item.avatar} />
+              <ThemedView>
+                <ThemedText type="default">{item.name}</ThemedText>
               </ThemedView>
             </ThemedView>
             <View
               style={{
                 height: StyleSheet.hairlineWidth,
-                backgroundColor: useThemeColor({}, "tint"),
+                backgroundColor: useThemeColor({}, "tint1"),
               }}
             />
           </Pressable>
@@ -115,32 +115,6 @@ export default PlayerRow = ({
 };
 
 const styles = StyleSheet.create({
-  item: {
-    height: 80,
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 20,
-    columnGap: 20,
-  },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-  },
-  itemLabel: {
-    opacity: 0.5,
-  },
-  position: {},
-  name: {
-    flex: 1,
-  },
-  balance: {
-    width: 100,
-    flex: 0,
-  },
   itemSeparator: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: "gray",

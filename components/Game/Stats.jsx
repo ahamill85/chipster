@@ -7,7 +7,7 @@ const VerticalRule = () => (
   <View
     style={{
       width: StyleSheet.hairlineWidth,
-      backgroundColor: useThemeColor({}, "tint"),
+      backgroundColor: useThemeColor({}, "tint1"),
     }}
   />
 );
@@ -25,7 +25,6 @@ export default Stats = ({currentHand, currentRound, potAmount}) => {
         style={{
           flex: 3,
           alignItems: "center",
-          gap: 10,
           justifyContent: "flex-end",
         }}
       >
@@ -44,7 +43,6 @@ export default Stats = ({currentHand, currentRound, potAmount}) => {
         style={{
           flex: 6,
           alignItems: "center",
-          gap: 10,
           justifyContent: "flex-end",
         }}
       >
@@ -63,7 +61,6 @@ export default Stats = ({currentHand, currentRound, potAmount}) => {
         style={{
           flex: 3,
           alignItems: "center",
-          gap: 10,
           justifyContent: "flex-end",
         }}
       >

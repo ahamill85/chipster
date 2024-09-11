@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { SafeAreaView, View, ScrollView, Keyboard } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { SafeAreaView, View, Keyboard, Text } from "react-native";
 
 import { ThemedText } from "../ThemedText";
 import { ThemedView } from "../ThemedView";
@@ -20,13 +20,24 @@ import ThemedModal from "../ThemedModal";
 import Avatar from "../Avatar";
 import BettingControls from "./BettingControls";
 import Stats from "./Stats";
+import { FlatList } from "react-native-gesture-handler";
+
+import ActionSheet from "react-native-actions-sheet";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+  SlideInDown,
+  SlideInUp,
+  SlideOutDown,
+} from "react-native-reanimated";
 
 const maxReraise = 1;
 const maxRounds = 5;
 const rotatingDealer = true;
 const startingDealer = 0;
 
-export default Game = () => {
+export default Game = ({ navigation }) => {
   const players = useSelector((state) => state.players);
 
   const dispatch = useDispatch();
@@ -55,12 +66,6 @@ export default Game = () => {
 
     return newCallAmount > playerBalance ? playerBalance : newCallAmount;
   }, [bets, players]);
-
-  const pacePlayerIndex = useMemo(
-    () => bets[currentRound].indexOf(paceAmount),
-    [paceAmount]
-  );
-
   //end game state vars
 
   //ux state variables
@@ -69,6 +74,8 @@ export default Game = () => {
   const [winnerModalVisible, setWinnerModalVisible] = useState(false);
   const [winningPlayer, setWinningPlayer] = useState(null);
   const [winnerAlertVisible, setWinnerAlertVisible] = useState(false);
+
+  const listElement = useRef(null);
 
   const handleStartGame = () => {
     dispatch(startGame(startingDealer));
@@ -138,6 +145,24 @@ export default Game = () => {
     setWinnerAlertVisible(true);
   };
 
+  const handleBet = (type, amount) => {
+    Keyboard.dismiss();
+
+    dispatch(bet({ amount, type }));
+
+    setBets((bets) => {
+      bets[currentRound][activePlayerIndex] += amount;
+      return [...bets];
+    });
+
+    if (amount > callAmount) {
+      setReraise((state) => {
+        state[activePlayerIndex] += 1;
+        return [...state];
+      });
+    }
+  };
+
   useEffect(() => {
     const remainingPlayers = players.filter(
       ({ status }) => status !== "fold" && status !== "out"
@@ -181,82 +206,104 @@ export default Game = () => {
     }
   }, [bets]);
 
-  const handleBet = (type, amount) => {
-    Keyboard.dismiss();
-
-    dispatch(bet({ amount, type }));
-
-    setBets((bets) => {
-      bets[currentRound][activePlayerIndex] += amount;
-      return [...bets];
-    });
-
-    if (amount > callAmount) {
-      setReraise((state) => {
-        state[activePlayerIndex] += 1;
-        return [...state];
+  useEffect(() => {
+    if (activePlayerIndex !== -1) {
+      listElement.current.scrollToIndex({
+        index: activePlayerIndex,
+        animated: true,
+        viewPosition: 0.5,
       });
     }
-  };
+
+    actionSheetRef.current?.show();
+  }, [activePlayerIndex]);
+
+  const actionSheetRef = useRef(null);
+
+  const [sheetHeight, setSheetHeight] = useState(0);
+
+  const sheetSnaps = [33, 0];
 
   return (
     <ThemedView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
-        <View style={{ flex: 1 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              columnGap: 20,
-              alignItems: "center",
-              paddingHorizontal: 20,
-              paddingVertical: 10,
-            }}
-          >
-            <View style={{ width: 30 }}></View>
-            <View style={{ flex: 1 }}>
-              <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
-                NAME
-              </ThemedText>
-            </View>
-            <View style={{ width: 50 }}>
-              <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
-                BET
-              </ThemedText>
-            </View>
-            <View style={{ width: 60 }}>
-              <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
-                BALANCE
-              </ThemedText>
-            </View>
+        <View
+          style={{
+            flexDirection: "row",
+            columnGap: 20,
+            alignItems: "center",
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+          }}
+        >
+          <View style={{ width: 50 }}></View>
+          <View style={{ flex: 1 }}>
+            <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
+              NAME
+            </ThemedText>
           </View>
-          <ScrollView
-            style={{
-              flex: 1,
-              flexBasis: "auto",
-              backgroundColor: useThemeColor({}, "background"),
-              zIndex: 1,
-            }}
-          >
-            {players.map((player, index) => (
-              <PlayerRow
-                promptWinner={promptWinnerSelection}
-                isTurn={player.inTheGun && !promptWinnerSelection}
-                player={player}
-                key={player.id}
-                onPress={() => {
-                  setPlayerSelected(players[index]);
-                  setWinnerModalVisible(true);
-                }}
-                isLast={index === players.length - 1}
-              />
-            ))}
-          </ScrollView>
-          {activePlayerIndex < 0 ? (
-            <View style={{ flex: 1, padding: 20, justifyContent: "flex-end" }}>
+          <View style={{ width: 50 }}>
+            <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
+              BET
+            </ThemedText>
+          </View>
+          <View style={{ width: 60 }}>
+            <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
+              BALANCE
+            </ThemedText>
+          </View>
+        </View>
+        <FlatList
+          style={{
+            flex: 1,
+            flexBasis: "auto",
+            backgroundColor: useThemeColor({}, "background"),
+            zIndex: 1,
+            //marginBottom: sheetHeight
+          }}
+          data={players}
+          renderItem={({ item: player, index }) => (
+            <PlayerRow
+              promptWinner={promptWinnerSelection}
+              isTurn={player.inTheGun && !promptWinnerSelection}
+              player={player}
+              key={player.id}
+              onPress={() => {
+                setPlayerSelected(players[index]);
+                setWinnerModalVisible(true);
+              }}
+              isLast={index === players.length - 1}
+            />
+          )}
+          ref={listElement}
+          onScrollToIndexFailed={() => {}}
+        />
+      </SafeAreaView>
+
+      {activePlayerIndex < 0 ? (
+        <Animated.View
+          exiting={SlideOutDown}
+          entering={SlideInDown}
+          layout={LinearTransition}
+        >
+          <SafeAreaView style={{ backgroundColor: "rgba(0,0,0,0.1)", borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
+            <View
+              style={{
+                padding: 20,
+              }}
+            >
               <ThemedButton onPress={handleStartGame}>Start Game</ThemedButton>
             </View>
-          ) : (
-            <>
+          </SafeAreaView>
+        </Animated.View>
+      ) : (
+        <Animated.View
+          exiting={SlideOutDown}
+          entering={SlideInDown}
+          layout={LinearTransition}
+        >
+          <SafeAreaView style={{ backgroundColor: "rgba(0,0,0,0.1)", borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
+            <View style={{ paddingTop: 20 }}>
               <Stats
                 currentHand={currentHand}
                 currentRound={currentRound}
@@ -270,10 +317,12 @@ export default Game = () => {
                 maxRaiseReached={reraise[activePlayerIndex] >= maxReraise}
                 activePlayerIndex={activePlayerIndex}
               />
-            </>
-          )}
-        </View>
-      </SafeAreaView>
+            </View>
+          </SafeAreaView>
+        </Animated.View>
+      )}
+      {/* </SafeAreaView> */}
+
       <WinnerConfirmModal
         player={playerSelected}
         animationType="fade"
@@ -300,7 +349,8 @@ export default Game = () => {
           <ThemedView style={{ gap: 20 }}>
             <View style={{ alignItems: "center", gap: 10 }}>
               <Avatar source={winningPlayer.avatar} size={160} />
-              <ThemedText type="title">{winningPlayer.name} Wins</ThemedText>
+              <ThemedText type="title">Winner!</ThemedText>
+              <ThemedText type="subtitle">{winningPlayer.name}</ThemedText>
               <ThemedText type="subtitle">
                 Total Win - {calculatedWinnings()[0]}
               </ThemedText>

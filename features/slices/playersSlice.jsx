@@ -43,13 +43,21 @@ const initialState = [
   // },
 ];
 
+const defaults = {
+  currentBet: 0,
+  balance: 100,
+  isDealer: false,
+  status: "ready",
+  inTheGun: false,
+};
+
 export const playersSlice = createSlice({
   name: "players",
   initialState: initialState,
   reducers: {
     startGame: (state, action) => {
       const dealerIndex = action.payload;
-      state[dealerIndex].isDealer = true
+      state[dealerIndex].isDealer = true;
 
       for (var i = 0; i < state.length; i++) {
         const pointer = (i + dealerIndex + 1) % state.length;
@@ -59,8 +67,8 @@ export const playersSlice = createSlice({
         break;
       }
     },
-    addPlayer: (state, action) => {
-      state.push(action.payload);
+    addPlayers: (state, { payload: newPlayers }) => {
+      state.push(...newPlayers.map((player) => ({ ...player, ...defaults })));
     },
     removePlayer: (state, action) => {
       return state.filter(({ id }) => id !== action.payload);
@@ -152,14 +160,14 @@ export const playersSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 export const {
-  addPlayer,
+  addPlayers,
   removePlayer,
   reorderPlayers,
   updatePlayer,
   resetPlayers,
   nextDealer,
   bet,
-  startGame
+  startGame,
 } = playersSlice.actions;
 
 export default playersSlice.reducer;

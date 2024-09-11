@@ -1,28 +1,42 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
   View,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  FlatList,
 } from "react-native";
 
 import { ThemedView } from "../ThemedView";
 
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useSelector, useDispatch } from "react-redux";
-import { removePlayer, reorderPlayers } from "@/features/slices/playersSlice";
+import {
+  removePlayer,
+  reorderPlayers,
+  addPlayers,
+} from "@/features/slices/playersSlice";
 import AddPlayerFormModal from "./AddPlayerFormModal";
 import EditPlayerFormModal from "./EditPlayerFormModal";
 import PlayerRow from "./PlayerRow";
 import DraggableFlatList from "react-native-draggable-flatlist";
 
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { ThemedButton } from "../ThemedButton";
+import { ThemedButton } from "@/components/ThemedButton";
+import ThemedModal from "@/components/ThemedModal";
+
 import { FontAwesome6 } from "@expo/vector-icons";
-import { ThemedText } from "../ThemedText";
+import { ThemedText } from "@/components/ThemedText";
 
 import { updatePlayer } from "@/features/slices/playersSlice";
+import * as Contacts from "expo-contacts";
+import Avatar from "../Avatar";
+import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
+import ThemedTextInput from "../ThemedTextInput";
+import AddContactFormModal from "./AddContactFormModal";
+
 
 export default Players = () => {
   const players = useSelector((state) => state.players);
@@ -46,7 +60,16 @@ export default Players = () => {
   //reset for dev purposes
   useEffect(() => {
     players.map((player) => {
-      dispatch(updatePlayer({ ...player, balance: 100, status: "ready", inTheGun: false, isDealer: false }));
+      dispatch(
+        updatePlayer({
+          ...player,
+          balance: 100,
+          currentBet: 0,
+          status: "ready",
+          inTheGun: false,
+          isDealer: false,
+        })
+      );
     });
   }, []);
 
@@ -97,7 +120,7 @@ export default Players = () => {
                 height: 500,
               }}
             />
-            <View style={{ padding: 20 }}>
+            <View style={{ padding: 20, gap: 10 }}>
               <ThemedButton
                 onPress={() => setFormState("add")}
                 icon={
@@ -108,14 +131,35 @@ export default Players = () => {
                   />
                 }
               >
-                Add Player
+                Add New Player
+              </ThemedButton>
+              <ThemedButton
+                onPress={() => setFormState("add-contacts")}
+                icon={
+                  <FontAwesome6
+                    name="plus"
+                    size="24"
+                    color={useThemeColor({}, "buttonText")}
+                  />
+                }
+              >
+                Add Player from Contacts
               </ThemedButton>
             </View>
           </View>
         </SafeAreaView>
       </ThemedView>
+      <AddContactFormModal
+        animationType="slide"
+        transparent={true}
+        visible={formState === "add-contacts"}
+        handleClose={() => setFormState("")}
+        onRequestClose={() => {
+          setFormState("");
+        }}
+      />
       <AddPlayerFormModal
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         visible={formState === "add"}
         handleClose={() => setFormState("")}
@@ -125,7 +169,7 @@ export default Players = () => {
       />
       <EditPlayerFormModal
         player={activeEditPlayer}
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         visible={formState === "edit"}
         handleClose={() => setFormState("")}

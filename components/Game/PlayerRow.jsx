@@ -24,16 +24,17 @@ export default PlayerRow = ({
   const background = useThemeColor({}, "buttonBackground");
   const color = useThemeColor({}, shouldPrompt ? "buttonText" : "text");
   const highlight = useThemeColor({}, "highlight");
+  const tint = useThemeColor({}, "tint1")
 
   const rowOpacity = () => {
     if (status === "fold") return 0.6;
     if (status === "out") return 0.2;
     return 1;
-  }
+  };
 
   const balanceText = () => {
     if (status === "out") return "OUT";
-    if (status === "fold") return "FOLD"
+    if (status === "fold") return "FOLD";
     if (balance === 0) return "ALL IN";
     return balance;
   };
@@ -47,6 +48,8 @@ export default PlayerRow = ({
   useEffect(() => {
     rowBackground.value = withTiming(isTurn ? highlight : "transparent");
   }, [isTurn]);
+
+  if (disabled && promptWinner) return <></>;
 
   return (
     <>
@@ -100,7 +103,7 @@ export default PlayerRow = ({
         <View
           style={{
             height: StyleSheet.hairlineWidth,
-            backgroundColor: useThemeColor({}, "tint"),
+            backgroundColor: tint,
           }}
         />
       )}

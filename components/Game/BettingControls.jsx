@@ -16,6 +16,7 @@ export default BettingControls = ({
   promptWinnerSelection,
   maxRaiseReached,
   activePlayerIndex,
+  ...rest
 }) => {
   const [betAmount, setBetAmount] = useState(null);
 
@@ -32,6 +33,7 @@ export default BettingControls = ({
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={headerHeight + 40}
+      {...rest}
     >
       <View
         style={{
