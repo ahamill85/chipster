@@ -93,7 +93,6 @@ const App = () => {
             </ThemedButton>
           ),
           title: "Set Players",
-          safeAreaInsets: 0,
           ...screenStyles,
         })}
       />

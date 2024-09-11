@@ -2,34 +2,40 @@ import {
   View,
   Modal,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
 
 import { ThemedView } from "./ThemedView";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 export default ThemedModal = ({ children, style, ...rest }) => {
+  const insets = useSafeAreaInsets();
+
   return (
     <Modal {...rest}>
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          backgroundColor: "rgba(0,0,0,0.3)",
-          paddingHorizontal: 20,
-        }}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={20}
-          style={{ flex: 1 }}
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.3)",
+            justifyContent: "flex-end",
+            paddingTop: insets.top,
+          }}
         >
-          <SafeAreaView style={{ flex: 1, justifyContent: "center" }}>
-            <ThemedView
-              style={[{
+          <ThemedView
+            style={[
+              {
                 padding: 20,
-                borderRadius: 20,
+                paddingBottom: insets.bottom,
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
                 gap: 20,
                 shadowColor: "#000",
                 shadowOffset: {
@@ -38,13 +44,14 @@ export default ThemedModal = ({ children, style, ...rest }) => {
                 },
                 shadowOpacity: 0.25,
                 shadowRadius: 4,
-              }, {...style}]}
-            >
-              {children}
-            </ThemedView>
-          </SafeAreaView>
-        </KeyboardAvoidingView>
-      </View>
+              },
+              { ...style },
+            ]}
+          >
+            {children}
+          </ThemedView>
+        </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };

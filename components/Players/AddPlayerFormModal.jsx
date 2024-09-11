@@ -57,75 +57,77 @@ export default AddPlayerFormModal = ({ handleClose, ...rest }) => {
 
   return (
     <ThemedModal {...rest}>
-      <View>
-        <ThemedView
-          style={{
-            width: 150,
-            height: 150,
-            borderRadius: 100,
-            alignSelf: "center",
-            marginTop: -90,
-            overflow: "hidden",
-            padding: 10,
-            paddingBottom: 0,
-          }}
-        >
-          <TouchableOpacity
-            onPress={pickImage}
+      <View style={{gap: 20}}>
+        <View style={{marginTop: 90, gap: 10}}>
+          <ThemedView
             style={{
-              width: 130,
-              height: 130,
-              borderRadius: 130,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: buttonBackground,
+              width: 150,
+              height: 150,
+              borderRadius: 100,
+              alignSelf: "center",
+              marginTop: -90,
+              overflow: "hidden",
+              padding: 10,
+              paddingBottom: 0,
             }}
           >
-            {image ? (
-              <Image
-                style={{
-                  width: 130,
-                  height: 130,
-                  borderRadius: 130,
-                }}
-                source={{ uri: image }}
-              />
-            ) : (
-              <FontAwesome6
-                name="camera"
-                size="50"
-                style={{ color: buttonText }}
-              />
-            )}
-          </TouchableOpacity>
-        </ThemedView>
-        <ThemedTextInput
-          placeholder="Player Name"
-          value={playerName}
-          onChangeText={setPlayerName}
-          ref={inputField}
-        />
-      </View>
-      <View style={{ gap: 10 }}>
-        <ThemedButton
-          disabled={!playerName}
-          style={{ opacity: !playerName ? 0.5 : 1 }}
-          onPress={() => {
-            setImage(null);
-            handleAddPlayer();
-          }}
-        >
-          Add Player
-        </ThemedButton>
-        <ThemedButton
-          type="danger"
-          onPress={() => {
-            setImage(null);
-            handleClose();
-          }}
-        >
-          Cancel
-        </ThemedButton>
+            <TouchableOpacity
+              onPress={pickImage}
+              style={{
+                width: 130,
+                height: 130,
+                borderRadius: 130,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: buttonBackground,
+              }}
+            >
+              {image ? (
+                <Image
+                  style={{
+                    width: 130,
+                    height: 130,
+                    borderRadius: 130,
+                  }}
+                  source={{ uri: image }}
+                />
+              ) : (
+                <FontAwesome6
+                  name="camera"
+                  size={50}
+                  style={{ color: buttonText }}
+                />
+              )}
+            </TouchableOpacity>
+          </ThemedView>
+          <ThemedTextInput
+            placeholder="Player Name"
+            value={playerName}
+            onChangeText={setPlayerName}
+            ref={inputField}
+          />
+        </View>
+        <View style={{ gap: 10 }}>
+          <ThemedButton
+            disabled={!playerName}
+            style={{ opacity: !playerName ? 0.5 : 1 }}
+            onPress={() => {
+              setImage(null);
+              handleAddPlayer();
+            }}
+          >
+            Add Player
+          </ThemedButton>
+          <ThemedButton
+            type="danger"
+            onPress={() => {
+              setImage(null);
+              handleClose();
+            }}
+          >
+            Cancel
+          </ThemedButton>
+        </View>
       </View>
     </ThemedModal>
   );

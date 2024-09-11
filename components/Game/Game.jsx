@@ -31,6 +31,8 @@ import Animated, {
   SlideInUp,
   SlideOutDown,
 } from "react-native-reanimated";
+import { BlurView } from "expo-blur";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const maxReraise = 1;
 const maxRounds = 5;
@@ -215,14 +217,7 @@ export default Game = ({ navigation }) => {
       });
     }
 
-    actionSheetRef.current?.show();
   }, [activePlayerIndex]);
-
-  const actionSheetRef = useRef(null);
-
-  const [sheetHeight, setSheetHeight] = useState(0);
-
-  const sheetSnaps = [33, 0];
 
   return (
     <ThemedView style={{ flex: 1 }}>
@@ -234,6 +229,7 @@ export default Game = ({ navigation }) => {
             alignItems: "center",
             paddingHorizontal: 20,
             paddingVertical: 10,
+            flex: 0,
           }}
         >
           <View style={{ width: 50 }}></View>
@@ -255,11 +251,8 @@ export default Game = ({ navigation }) => {
         </View>
         <FlatList
           style={{
-            flex: 1,
-            flexBasis: "auto",
             backgroundColor: useThemeColor({}, "background"),
-            zIndex: 1,
-            //marginBottom: sheetHeight
+            flex: 1,
           }}
           data={players}
           renderItem={({ item: player, index }) => (
@@ -286,7 +279,13 @@ export default Game = ({ navigation }) => {
           entering={SlideInDown}
           layout={LinearTransition}
         >
-          <SafeAreaView style={{ backgroundColor: "rgba(0,0,0,0.1)", borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
+          <SafeAreaView
+            style={{
+              backgroundColor: "rgba(0,0,0,0.1)",
+              borderTopLeftRadius: 30,
+              borderTopRightRadius: 30,
+            }}
+          >
             <View
               style={{
                 padding: 20,
@@ -302,8 +301,14 @@ export default Game = ({ navigation }) => {
           entering={SlideInDown}
           layout={LinearTransition}
         >
-          <SafeAreaView style={{ backgroundColor: "rgba(0,0,0,0.1)", borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
-            <View style={{ paddingTop: 20 }}>
+          <SafeAreaView
+            style={{
+              backgroundColor: "rgba(0,0,0,0.1)",
+              borderTopLeftRadius: 30,
+              borderTopRightRadius: 30,
+            }}
+          >
+            <View style={{ paddingTop: 30 }}>
               <Stats
                 currentHand={currentHand}
                 currentRound={currentRound}

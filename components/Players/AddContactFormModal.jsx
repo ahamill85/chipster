@@ -109,45 +109,52 @@ export default AddContactFormModal = ({ handleClose, ...rest }) => {
   }, []);
 
   return (
-    <ThemedModal style={{ flex: 1 }} {...rest}>
-      <ThemedTextInput
-        onChangeText={setFilterText}
-        value={filterText}
-        placeholder="Filter"
-      />
-      <FlatList
-        data={filteredContacts}
-        ItemSeparatorComponent={() => (
-          <View
-            style={{
-              backgroundColor: useThemeColor({}, "tint1"),
-              height: StyleSheet.hairlineWidth,
-            }}
+    <ThemedModal style={{ flexGrow: 1 }} {...rest}>
+      <View style={{ flex: 1, gap: 20 }}>
+        <View style={{ flex: 0 }}>
+          <ThemedTextInput
+            onChangeText={setFilterText}
+            value={filterText}
+            placeholder="Filter"
           />
-        )}
-        renderItem={({ item }) => (
-          <ContactRow
-            disabled={players.some(({ id }) => id === item.id)}
-            contact={item}
-            handleSelected={() =>
-              setSelectedContacts((selected) => {
-                const exists = selected.some(({ id }) => id === item.id);
-                return exists
-                  ? selected.filter(({ id }) => id !== item.id)
-                  : [...selected, item];
-              })
-            }
-            isSelected={selectedContacts.some(({ id }) => id === item.id)}
+        </View>
+        <View style={{ flexGrow: 0, flexShrink: 1, flexBasis: "auto" }}>
+          <FlatList
+            data={filteredContacts}
+            ItemSeparatorComponent={() => (
+              <View
+                style={{
+                  backgroundColor: useThemeColor({}, "tint1"),
+                  height: StyleSheet.hairlineWidth,
+                }}
+              />
+            )}
+            renderItem={({ item }) => (
+              <ContactRow
+                disabled={players.some(({ id }) => id === item.id)}
+                contact={item}
+                handleSelected={() =>
+                  setSelectedContacts((selected) => {
+                    const exists = selected.some(({ id }) => id === item.id);
+                    return exists
+                      ? selected.filter(({ id }) => id !== item.id)
+                      : [...selected, item];
+                  })
+                }
+                isSelected={selectedContacts.some(({ id }) => id === item.id)}
+              />
+            )}
+            contentContainerStyle={{ flexGrow: 1 }}
+            style={{}}
           />
-        )}
-        contentContainerStyle={{ flexGrow: 1 }}
-        style={{}}
-      />
-      <View style={{ gap: 10 }}>
-        <ThemedButton onPress={handleAdd}>Add Selected</ThemedButton>
-        <ThemedButton type="danger" onPress={handleClose}>
-          Cancel
-        </ThemedButton>
+        </View>
+
+        <View style={{ gap: 10, flex: 0 }}>
+          <ThemedButton onPress={handleAdd}>Add Selected</ThemedButton>
+          <ThemedButton type="danger" onPress={handleClose}>
+            Cancel
+          </ThemedButton>
+        </View>
       </View>
     </ThemedModal>
   );
