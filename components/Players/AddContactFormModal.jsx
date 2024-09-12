@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { StyleSheet, View, TouchableOpacity, FlatList } from "react-native";
+import { StyleSheet, View, TouchableOpacity, FlatList, Pressable } from "react-native";
 import { ThemedButton } from "../ThemedButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,19 +14,23 @@ const ContactRow = ({ contact, isSelected, handleSelected, disabled }) => {
   //const [selected, setSelected] = useState(false);
   const { id, name, avatar } = contact;
 
-  const iconBackground = useThemeColor({}, "buttonBackground");
-  const iconColor = useThemeColor({}, "buttonText");
+  const iconColor = useThemeColor({}, "buttonBackground");
+  const iconBackground = useThemeColor({}, "buttonText");
 
   return (
-    <TouchableOpacity onPress={handleSelected} disabled={disabled}>
+    <Pressable onPress={handleSelected} disabled={disabled}>
       <View
         key={id}
         style={{
           flexDirection: "row",
           gap: 20,
           alignItems: "center",
-          paddingVertical: 10,
+          paddingVertical: 15,
+          paddingHorizontal: 20,
           opacity: disabled ? 0.5 : 1,
+          backgroundColor: isSelected || disabled ? iconColor : "transparent",
+          borderRadius: 10,
+          marginVertical: 5,
         }}
       >
         <View
@@ -48,9 +52,9 @@ const ContactRow = ({ contact, isSelected, handleSelected, disabled }) => {
             <Avatar size={30} source={avatar} />
           )}
         </View>
-        <ThemedText type="h3">{name}</ThemedText>
+        <ThemedText style={{color: isSelected || disabled ? iconBackground : iconColor}} type="h3">{name}</ThemedText>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
