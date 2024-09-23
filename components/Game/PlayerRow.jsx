@@ -12,10 +12,11 @@ import Animated, {
 } from "react-native-reanimated";
 
 export default PlayerRow = ({
-  player: { avatar, name, balance, isDealer, status, currentBet },
+  player: { avatar, name, balance, isDealer, status, bets },
   isTurn,
   isLast,
   promptWinner,
+  currentRound,
   ...rest
 }) => {
   const disabled = status === "fold" || status === "out";
@@ -24,7 +25,9 @@ export default PlayerRow = ({
   const background = useThemeColor({}, "buttonBackground");
   const color = useThemeColor({}, shouldPrompt ? "buttonText" : "text");
   const highlight = useThemeColor({}, "highlight");
-  const tint = useThemeColor({}, "tint1")
+  const tint = useThemeColor({}, "tint1");
+
+  const currentBet = bets[currentRound];
 
   const rowOpacity = () => {
     if (status === "fold") return 0.6;

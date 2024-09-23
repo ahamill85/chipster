@@ -57,22 +57,6 @@ export default Players = () => {
     setFormState("edit");
   };
 
-  //reset for dev purposes
-  useEffect(() => {
-    players.map((player) => {
-      dispatch(
-        updatePlayer({
-          ...player,
-          balance: 100,
-          currentBet: 0,
-          status: "ready",
-          inTheGun: false,
-          isDealer: false,
-        })
-      );
-    });
-  }, []);
-
   return (
     <>
       <ThemedView style={{ flex: 1 }}>

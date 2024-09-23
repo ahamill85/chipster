@@ -44,11 +44,11 @@ const initialState = [
 ];
 
 const defaults = {
-  currentBet: 0,
+  //currentBet: null,
   balance: 100,
-  isDealer: false,
-  status: "ready",
-  inTheGun: false,
+  //isDealer: false,
+  //status: "ready",
+  //inTheGun: false,
 };
 
 export const playersSlice = createSlice({
@@ -122,18 +122,20 @@ export const playersSlice = createSlice({
     resetPlayers: (state) =>
       state.map((player) => ({
         ...player,
-        currentBet: 0,
+        currentBet: null,
         folded: !player.balance,
         status: !player.balance ? "out" : "ready",
       })),
-    nextDealer: (state) => {
-      const dealerIndex = state.findIndex(({ isDealer }) => isDealer);
-      const playerIndex = state.findIndex(({ inTheGun }) => inTheGun);
+    nextHand: (state, action) => {
+      let { startingDealer, ante, smallBlind, bigBlind } = action.payload;
 
-      let foundDealer = false;
+      const dealerIndex =
+        startingDealer !== null
+          ? startingDealer - 1
+          : state.findIndex(({ isDealer }) => isDealer);
 
-      state[dealerIndex].isDealer = false;
-      state[playerIndex].inTheGun = false;
+      let foundDealer = !!startingDealer;
+      let foundNextPlayer = false;
 
       for (var i = 0; i < state.length; i++) {
         const pointer = (i + dealerIndex + 1) % state.length;
@@ -142,16 +144,34 @@ export const playersSlice = createSlice({
         if (!foundDealer) {
           player.isDealer = true;
           foundDealer = true;
-          continue;
-        }
-
-        if (
+        } else if (
           player.status !== "out" &&
           player.status !== "fold" &&
           player.balance
         ) {
-          player.inTheGun = true;
-          break;
+          player.isDealer = false;
+          player.inTheGun = false;
+          player.currentBet = ante;
+          player.status = "ready";
+
+          if (smallBlind) {
+            player.currentBet = smallBlind;
+            player.status = "bet";
+            smallBlind = 0;
+            continue;
+          }
+          if (bigBlind) {
+            player.currentBet = bigBlind;
+            player.status = "bet";
+            bigBlind = 0;
+            continue;
+          }
+          if (!foundNextPlayer) {
+            player.inTheGun = true;
+            foundNextPlayer = true;
+          } else {
+            player.inTheGun = false;
+          }
         }
       }
     },
@@ -165,7 +185,7 @@ export const {
   reorderPlayers,
   updatePlayer,
   resetPlayers,
-  nextDealer,
+  nextHand,
   bet,
   startGame,
 } = playersSlice.actions;

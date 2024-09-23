@@ -22,11 +22,14 @@ export default BettingControls = ({
 
   const headerHeight = useHeaderHeight();
 
+  const BetText = (betAmount, callAmount) => {
+    if (betAmount === callAmount) return "call";
+    if (betAmount > callAmount) return `raise (${betAmount - callAmount})`;
+    return "bet";
+  };
+
   useEffect(() => {
-    // setBetAmount(() =>
-    //   callAmount > activePlayerBalance ? activePlayerBalance : callAmount
-    // );
-    setBetAmount(callAmount)
+    setBetAmount(callAmount);
   }, [activePlayerIndex]);
 
   return (
@@ -138,13 +141,7 @@ export default BettingControls = ({
               }}
               onPress={() => handleBet("bet", betAmount)}
               disabled={betAmount < callAmount || (!callAmount && !betAmount)}
-            >
-              {betAmount === callAmount && callAmount ? "CALL" : ""}
-              {betAmount > callAmount && callAmount
-                ? `RAISE (${betAmount - callAmount})`
-                : ""}
-              {!callAmount ? "BET" : ""}
-            </ThemedButton>
+            >{BetText(betAmount, callAmount).toUpperCase()}</ThemedButton>
           </View>
           <View style={{ flexDirection: "row" }}>
             {callAmount ? (

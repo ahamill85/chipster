@@ -10,7 +10,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   updatePlayer,
   resetPlayers,
-  nextDealer,
+  nextHand,
   bet,
   startGame,
 } from "@/features/slices/playersSlice";
@@ -38,6 +38,65 @@ const maxReraise = 1;
 const maxRounds = 5;
 const rotatingDealer = true;
 const startingDealer = 0;
+const smallBlind = 1;
+const bigBlind = 2;
+const increment = 1;
+const ante = 0;
+
+const setupNewHand = (players, dealerIndex = 0) => {
+  let foundDealer = false;
+  let foundSmallBlind = !smallBlind;
+  let foundBigBlind = !bigBlind;
+  let foundNextPlayer = false;
+
+  let index = dealerIndex;
+  let amount = ante;
+  let playerCount = players.length;
+
+  const playerArr = players.map((player) => {
+    return { ...player, inTheGun: false, isDealer: false, bets: player.bets = [] };
+  });
+
+  while (
+    !foundDealer ||
+    !foundSmallBlind ||
+    !foundBigBlind ||
+    !foundNextPlayer ||
+    index - dealerIndex < playerCount
+  ) {
+    let player = playerArr[index % playerArr.length];
+
+    const playerIsActive = player.status !== "out" && player.balance;
+
+    if (!foundDealer) {
+      player.isDealer = true;
+      foundDealer = true;
+    } else if (!foundSmallBlind && playerIsActive) {
+      amount = smallBlind;
+      foundSmallBlind = true;
+    } else if (!foundBigBlind && playerIsActive) {
+      amount = bigBlind;
+      foundBigBlind = true;
+    } else if (!foundNextPlayer && playerIsActive) {
+      player.inTheGun = true;
+      foundNextPlayer = true;
+    }
+
+    if (!playerIsActive) {
+      player.bets.push(0);
+      player.status = "out";
+    } else {
+      player.bets.push(amount);
+      player.status = "ready";
+    }
+
+    amount = ante;
+
+    index++;
+  }
+
+  return [...playerArr];
+};
 
 export default Game = ({ navigation }) => {
   const players = useSelector((state) => state.players);
@@ -46,28 +105,33 @@ export default Game = ({ navigation }) => {
 
   //game state vars
   const [currentHand, setCurrentHand] = useState(1);
-  const [bets, setBets] = useState([players.map(() => null)]);
   const [reraise, setReraise] = useState(players.map(() => 0));
+  const [playerStats, setPlayerStats] = useState(() => setupNewHand(players));
 
-  const activePlayerIndex = players.findIndex(({ inTheGun }) =>
-    inTheGun ? inTheGun : 0
+  const activePlayerIndex = playerStats.findIndex(({ inTheGun }) =>
+    inTheGun >= 0 ? inTheGun : 0
   );
-  const currentRound = bets.length - 1;
-  const paceAmount = Math.max(...bets[currentRound]);
+  const currentRound = playerStats[0].bets.length - 1;
+  const bets = playerStats.map(({ bets }) => bets);
+  const currentRoundBets = playerStats.map(({ bets }) => bets[currentRound]);
+  const paceAmount = Math.max(...currentRoundBets);
   const potAmount = bets.reduce(
-    (totalSum, round) =>
-      totalSum + round.reduce((roundSum, bet) => roundSum + bet, 0),
+    (totalSum, playerBets) =>
+      totalSum +
+      playerBets.reduce((playerTotal, roundBet) => playerTotal + roundBet, 0),
     0
   );
 
   const callAmount = useMemo(() => {
     if (activePlayerIndex < 0) return 0;
-    const currentBet = bets[currentRound][activePlayerIndex];
-    const playerBalance = players[activePlayerIndex].balance;
+    const currentBet = currentRoundBets[activePlayerIndex];
+    const playerBalance = playerStats[activePlayerIndex].balance;
     const newCallAmount = paceAmount - currentBet;
 
+    // console.log(currentBet, playerBalance, newCallAmount);
+
     return newCallAmount > playerBalance ? playerBalance : newCallAmount;
-  }, [bets, players]);
+  }, [currentRoundBets]);
   //end game state vars
 
   //ux state variables
@@ -79,47 +143,50 @@ export default Game = ({ navigation }) => {
 
   const listElement = useRef(null);
 
-  const handleStartGame = () => {
-    dispatch(startGame(startingDealer));
-  };
+  const handleBet = (type, amount) => {
+    Keyboard.dismiss();
 
-  const calculatedWinnings = () => {
-    const playerCredits = players.reduce(
-      (array, player) => [
-        ...array,
-        Math.max(0, player.currentBet - winningPlayer.currentBet),
-      ],
-      []
-    );
+    //update reraise count
+    if (amount > callAmount) {
+      setReraise((state) => {
+        state[activePlayerIndex] += 1;
+        return [...state];
+      });
+    }
 
-    return [
-      potAmount - playerCredits.reduce((total, credits) => total + credits, 0),
-      playerCredits,
-    ];
-  };
+    //set bet and handle next player
+    setPlayerStats((state) => {
+      const activeIndex = state.findIndex(({ inTheGun }) => inTheGun);
+      const activePlayer = state[activeIndex];
 
-  const handleNewHand = () => {
-    const [winnings, playerCredits] = calculatedWinnings();
+      activePlayer.inTheGun = false;
+      activePlayer.bets[currentRound] += amount;
+      activePlayer.status = type;
+      activePlayer.balance -= amount;
 
-    players.forEach((player, index) => {
-      const credit =
-        player.id === winningPlayer.id ? winnings : playerCredits[index];
+      //activate next player
+      for (var i = 0; i < state.length; i++) {
+        const pointer = (i + activeIndex + 1) % state.length;
+        const player = state[pointer];
 
-      dispatch(
-        updatePlayer({
-          ...player,
-          balance: player.balance + credit, //calculateWinnings();
-        })
-      );
+        //ensure next player is not
+        if (
+          player.status !== "out" &&
+          player.status !== "fold" &&
+          player.balance
+        ) {
+          player.inTheGun = true;
+          break;
+        }
+      }
+
+      if (!state.some(({ inTheGun }) => inTheGun)) {
+        console.log("fuck");
+        state[activeIndex].inTheGun = true;
+      }
+
+      return [...state];
     });
-
-    setWinnerAlertVisible(false); //close winner alert
-    setBets([players.map(() => null)]); //reset bets
-    setReraise(players.map(() => 0)); //reset reraise counts
-    setCurrentHand((state) => (state += 1)); // up hand count
-
-    dispatch(resetPlayers(rotatingDealer));
-    dispatch(nextDealer());
   };
 
   const handleNewRound = () => {
@@ -128,15 +195,66 @@ export default Game = ({ navigation }) => {
       return;
     }
 
-    setBets((bets) => [...bets, players.map(() => null)]);
     setReraise(players.map(() => 0));
-    players.map((player) => {
-      if (
-        (player.status === "check" || player.status === "bet") &&
-        player.balance
-      )
-        dispatch(updatePlayer({ ...player, status: "ready" }));
+
+    setPlayerStats((state) => {
+      const activeIndex = state.findIndex(({ isDealer }) => isDealer);
+
+      let foundNextPlayer = false;
+
+      for (var i = 0; i < state.length; i++) {
+        const pointer = (i + activeIndex + 1) % state.length;
+        const player = state[pointer];
+
+        player.bets.push(0);
+        player.inTheGun = false;
+
+        //ensure next player is not
+        if (
+          player.status !== "out" &&
+          player.status !== "fold" &&
+          player.balance
+        ) {
+          if (!foundNextPlayer) {
+            player.inTheGun = true;
+            foundNextPlayer = true;
+          }
+
+          player.status = "ready";
+        }
+      }
+
+      if (!state.some(({ inTheGun }) => inTheGun)) {
+        console.log("fuck");
+        state[activeIndex].inTheGun = true;
+      }
+
+      return [...state];
     });
+  };
+
+  const calculatedWinnings = () => {
+    const playerBetTotals = playerStats.reduce(
+      (array, player) => [
+        ...array,
+        player.bets.reduce((total, round) => total + round, 0),
+      ],
+      []
+    );
+
+    const winningPlayerIndex = playerStats.findIndex(
+      ({ id }) => id === winningPlayer.id
+    );
+    const winningPlayerTotalBet = playerBetTotals[winningPlayerIndex];
+
+    const playerCredits = playerBetTotals.map((totalBet) =>
+      Math.max(totalBet - winningPlayerTotalBet, 0)
+    );
+
+    return [
+      potAmount - playerCredits.reduce((total, credits) => total + credits, 0),
+      playerCredits,
+    ];
   };
 
   const handleHandEnd = (player) => {
@@ -147,66 +265,64 @@ export default Game = ({ navigation }) => {
     setWinnerAlertVisible(true);
   };
 
-  const handleBet = (type, amount) => {
-    Keyboard.dismiss();
+  const handleNewHand = () => {
+    const [winnings, playerCredits] = calculatedWinnings();
 
-    dispatch(bet({ amount, type }));
+    setPlayerStats((state) => {
+      const dealerIndex = playerStats.findIndex(({ isDealer }) => isDealer);
 
-    setBets((bets) => {
-      bets[currentRound][activePlayerIndex] += amount;
-      return [...bets];
+      const updatedWinnings = state.map((player, index) => {
+        player.balance +=
+          player.id === winningPlayer.id ? winnings : playerCredits[index];
+
+        return player;
+      });
+
+      return setupNewHand(updatedWinnings, dealerIndex);
     });
 
-    if (amount > callAmount) {
-      setReraise((state) => {
-        state[activePlayerIndex] += 1;
-        return [...state];
-      });
-    }
+    setWinnerAlertVisible(false); //close winner alert
+
+    setReraise(playerStats.map(() => 0)); //reset reraise counts
+    setCurrentHand((state) => (state += 1)); // up hand count
   };
 
   useEffect(() => {
-    const remainingPlayers = players.filter(
+    const remainingPlayers = playerStats.filter(
       ({ status }) => status !== "fold" && status !== "out"
     );
 
     //everyone but 1 person folded
     if (remainingPlayers.length === 1) {
-      //console.log("everyone is out or folded but 1 person");
+      console.log("everyone is out or folded but 1 person");
       handleHandEnd(remainingPlayers[0]);
     } else if (remainingPlayers.every(({ status }) => status === "check")) {
-      //console.log("all players checked");
+      console.log("all players checked");
       handleNewRound();
-      return;
-    } else if (
-      !remainingPlayers.some(
-        ({ status }) => status === "ready" || status === "check"
-      )
-    ) {
+    } else if (!remainingPlayers.some(({ status }) => status === "ready")) {
       //console.log("everyone has made an action");
 
-      const awaitingPlayers = players.filter(
-        ({ balance, status }, index) =>
-          bets[currentRound][index] < paceAmount &&
-          status !== "fold" &&
-          status !== "out" &&
-          balance
+      const awaitingPlayers = remainingPlayers.filter(
+        ({ balance, bets }) => bets[currentRound] < paceAmount && balance
       );
 
       if (!awaitingPlayers.length) {
-        //console.log("no more betting in this round");
-
-        if (remainingPlayers.filter(({ balance }) => !!balance).length === 1) {
-          console.log("everyone is all-in except 1 person");
+        if (remainingPlayers.filter(({ balance }) => !!balance).length < 2) {
+          // console.log(
+          //   "at least everyone but 1 person is all in and it's time to select a winner"
+          // );
           setPrompWinnerSelection(true);
-          return;
+        } else {
+          console.log("new round");
+          handleNewRound();
         }
-
-        //console.log("betting continues");
-        handleNewRound();
+      } else {
+        console.log("waiting for players");
       }
+    } else {
+      console.log("round continues");
     }
-  }, [bets]);
+  }, [playerStats]);
 
   useEffect(() => {
     if (activePlayerIndex !== -1) {
@@ -216,8 +332,9 @@ export default Game = ({ navigation }) => {
         viewPosition: 0.5,
       });
     }
-
   }, [activePlayerIndex]);
+
+  console.log(playerStats);
 
   return (
     <ThemedView style={{ flex: 1 }}>
@@ -254,18 +371,19 @@ export default Game = ({ navigation }) => {
             backgroundColor: useThemeColor({}, "background"),
             flex: 1,
           }}
-          data={players}
+          data={playerStats}
           renderItem={({ item: player, index }) => (
             <PlayerRow
               promptWinner={promptWinnerSelection}
               isTurn={player.inTheGun && !promptWinnerSelection}
               player={player}
               key={player.id}
+              currentRound={currentRound}
               onPress={() => {
-                setPlayerSelected(players[index]);
+                setPlayerSelected(playerStats[index]);
                 setWinnerModalVisible(true);
               }}
-              isLast={index === players.length - 1}
+              isLast={index === playerStats.length - 1}
             />
           )}
           ref={listElement}
@@ -273,7 +391,7 @@ export default Game = ({ navigation }) => {
         />
       </SafeAreaView>
 
-      {activePlayerIndex < 0 ? (
+      {/* {activePlayerIndex < 0 ? (
         <Animated.View
           exiting={SlideOutDown}
           entering={SlideInDown}
@@ -295,42 +413,42 @@ export default Game = ({ navigation }) => {
             </View>
           </SafeAreaView>
         </Animated.View>
-      ) : (
-        <Animated.View
-          exiting={SlideOutDown}
-          entering={SlideInDown}
-          layout={LinearTransition}
+      ) : ( */}
+      <Animated.View
+        exiting={SlideOutDown}
+        entering={SlideInDown}
+        layout={LinearTransition}
+      >
+        <SafeAreaView
+          style={{
+            backgroundColor: "rgba(0,0,0,0.1)",
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
+          }}
         >
-          <SafeAreaView
-            style={{
-              backgroundColor: "rgba(0,0,0,0.1)",
-              borderTopLeftRadius: 30,
-              borderTopRightRadius: 30,
-            }}
-          >
-            <View style={{ paddingTop: 30 }}>
-              <Stats
-                currentHand={currentHand}
-                currentRound={currentRound}
-                potAmount={potAmount}
-              />
-              <BettingControls
-                activePlayerBalance={players[activePlayerIndex].balance}
-                callAmount={callAmount}
-                handleBet={handleBet}
-                promptWinnerSelection={promptWinnerSelection}
-                maxRaiseReached={reraise[activePlayerIndex] >= maxReraise}
-                activePlayerIndex={activePlayerIndex}
-              />
-            </View>
-          </SafeAreaView>
-        </Animated.View>
-      )}
+          <View style={{ paddingTop: 30 }}>
+            <Stats
+              currentHand={currentHand}
+              currentRound={currentRound}
+              potAmount={potAmount}
+            />
+            <BettingControls
+              activePlayerBalance={playerStats[activePlayerIndex].balance}
+              callAmount={callAmount}
+              handleBet={handleBet}
+              promptWinnerSelection={promptWinnerSelection}
+              maxRaiseReached={reraise[activePlayerIndex] >= maxReraise}
+              activePlayerIndex={activePlayerIndex}
+            />
+          </View>
+        </SafeAreaView>
+      </Animated.View>
+      {/* )} */}
       {/* </SafeAreaView> */}
 
       <WinnerConfirmModal
         player={playerSelected}
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         visible={winnerModalVisible}
         handleCancel={() => setWinnerModalVisible(false)}
@@ -346,7 +464,7 @@ export default Game = ({ navigation }) => {
         }}
       />
       <ThemedModal
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         visible={winnerAlertVisible}
       >
