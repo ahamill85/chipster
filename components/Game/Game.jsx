@@ -7,13 +7,6 @@ import { ThemedView } from "../ThemedView";
 import { ThemedButton } from "../ThemedButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  updatePlayer,
-  resetPlayers,
-  nextHand,
-  bet,
-  startGame,
-} from "@/features/slices/playersSlice";
 import PlayerRow from "./PlayerRow";
 import WinnerConfirmModal from "./WinnerConfirmModal";
 import ThemedModal from "../ThemedModal";
@@ -22,29 +15,32 @@ import BettingControls from "./BettingControls";
 import Stats from "./Stats";
 import { FlatList } from "react-native-gesture-handler";
 
-import ActionSheet from "react-native-actions-sheet";
 import Animated, {
-  FadeIn,
-  FadeOut,
   LinearTransition,
   SlideInDown,
-  SlideInUp,
   SlideOutDown,
 } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const maxReraise = 1;
-const maxRounds = 5;
-const rotatingDealer = true;
-const startingDealer = 0;
-const smallBlind = 1;
-const bigBlind = 2;
-const increment = 1;
-const ante = 0;
+// const maxReraise = 1;
+// const maxRounds = 5;
+// const rotatingDealer = true;
+// const startingDealer = 0;
+// const smallBlind = 1;
+// const bigBlind = 2;
+// const increment = 1;
+// const ante = 0;
+// const playerDealer = true;
 
-const setupNewHand = (players, dealerIndex = 0) => {
-  let foundDealer = false;
+const setupNewHand = (players, options) => {
+  const { playerDealer, smallBlind, bigBlind, ante, rotatingDealer } = options;
+
+  const currentDealerIndex = players.findIndex(({ isDealer }) => isDealer);
+  const dealerIndex = rotatingDealer
+    ? (currentDealerIndex + 1) % players.length
+    : 0;
+
+  let foundDealer = !playerDealer;
   let foundSmallBlind = !smallBlind;
   let foundBigBlind = !bigBlind;
   let foundNextPlayer = false;
@@ -54,7 +50,12 @@ const setupNewHand = (players, dealerIndex = 0) => {
   let playerCount = players.length;
 
   const playerArr = players.map((player) => {
-    return { ...player, inTheGun: false, isDealer: false, bets: player.bets = [] };
+    return {
+      ...player,
+      inTheGun: false,
+      isDealer: false,
+      bets: [],
+    };
   });
 
   while (
@@ -87,6 +88,7 @@ const setupNewHand = (players, dealerIndex = 0) => {
       player.status = "out";
     } else {
       player.bets.push(amount);
+      player.balance -= amount;
       player.status = "ready";
     }
 
@@ -98,16 +100,25 @@ const setupNewHand = (players, dealerIndex = 0) => {
   return [...playerArr];
 };
 
-export default Game = ({ navigation }) => {
+export default Game = () => {
   const players = useSelector((state) => state.players);
-
-  const dispatch = useDispatch();
+  const { maxReraise, maxRounds, startingBalance, increment, ...options } =
+    useSelector((state) => state.options);
 
   //game state vars
-  const [currentHand, setCurrentHand] = useState(1);
   const [reraise, setReraise] = useState(players.map(() => 0));
-  const [playerStats, setPlayerStats] = useState(() => setupNewHand(players));
+  const [playerStatsHistory, setPlayerStatsHistory] = useState(() => ({
+    past: [],
+    present: setupNewHand(
+      players.map((player) => ({ ...player, balance: startingBalance })),
+      options
+    ),
+    future: [],
+  }));
 
+  //derived state vars
+  const { present: playerStats } = playerStatsHistory;
+  const currentHand = playerStatsHistory.past.length + 1;
   const activePlayerIndex = playerStats.findIndex(({ inTheGun }) =>
     inTheGun >= 0 ? inTheGun : 0
   );
@@ -115,24 +126,22 @@ export default Game = ({ navigation }) => {
   const bets = playerStats.map(({ bets }) => bets);
   const currentRoundBets = playerStats.map(({ bets }) => bets[currentRound]);
   const paceAmount = Math.max(...currentRoundBets);
-  const potAmount = bets.reduce(
+
+  //memoized vars
+  const potAmount = useMemo(() => bets.reduce(
     (totalSum, playerBets) =>
       totalSum +
       playerBets.reduce((playerTotal, roundBet) => playerTotal + roundBet, 0),
     0
-  );
-
+  ), [playerStats]);
   const callAmount = useMemo(() => {
     if (activePlayerIndex < 0) return 0;
     const currentBet = currentRoundBets[activePlayerIndex];
     const playerBalance = playerStats[activePlayerIndex].balance;
     const newCallAmount = paceAmount - currentBet;
 
-    // console.log(currentBet, playerBalance, newCallAmount);
-
     return newCallAmount > playerBalance ? playerBalance : newCallAmount;
   }, [currentRoundBets]);
-  //end game state vars
 
   //ux state variables
   const [playerSelected, setPlayerSelected] = useState(null);
@@ -141,6 +150,7 @@ export default Game = ({ navigation }) => {
   const [winningPlayer, setWinningPlayer] = useState(null);
   const [winnerAlertVisible, setWinnerAlertVisible] = useState(false);
 
+  //refs
   const listElement = useRef(null);
 
   const handleBet = (type, amount) => {
@@ -155,9 +165,9 @@ export default Game = ({ navigation }) => {
     }
 
     //set bet and handle next player
-    setPlayerStats((state) => {
-      const activeIndex = state.findIndex(({ inTheGun }) => inTheGun);
-      const activePlayer = state[activeIndex];
+    setPlayerStatsHistory(({ present: players, ...rest }) => {
+      const activeIndex = players.findIndex(({ inTheGun }) => inTheGun);
+      const activePlayer = players[activeIndex];
 
       activePlayer.inTheGun = false;
       activePlayer.bets[currentRound] += amount;
@@ -165,9 +175,9 @@ export default Game = ({ navigation }) => {
       activePlayer.balance -= amount;
 
       //activate next player
-      for (var i = 0; i < state.length; i++) {
-        const pointer = (i + activeIndex + 1) % state.length;
-        const player = state[pointer];
+      for (var i = 0; i < players.length; i++) {
+        const pointer = (i + activeIndex + 1) % players.length;
+        const player = players[pointer];
 
         //ensure next player is not
         if (
@@ -180,12 +190,15 @@ export default Game = ({ navigation }) => {
         }
       }
 
-      if (!state.some(({ inTheGun }) => inTheGun)) {
+      if (!players.some(({ inTheGun }) => inTheGun)) {
         console.log("fuck");
-        state[activeIndex].inTheGun = true;
+        players[activeIndex].inTheGun = true;
       }
 
-      return [...state];
+      return {
+        ...rest,
+        present: [...players],
+      };
     });
   };
 
@@ -197,14 +210,14 @@ export default Game = ({ navigation }) => {
 
     setReraise(players.map(() => 0));
 
-    setPlayerStats((state) => {
-      const activeIndex = state.findIndex(({ isDealer }) => isDealer);
+    setPlayerStatsHistory(({ present: players, ...rest }) => {
+      const activeIndex = players.findIndex(({ isDealer }) => isDealer);
 
       let foundNextPlayer = false;
 
-      for (var i = 0; i < state.length; i++) {
-        const pointer = (i + activeIndex + 1) % state.length;
-        const player = state[pointer];
+      for (var i = 0; i < players.length; i++) {
+        const pointer = (i + activeIndex + 1) % players.length;
+        const player = players[pointer];
 
         player.bets.push(0);
         player.inTheGun = false;
@@ -224,12 +237,15 @@ export default Game = ({ navigation }) => {
         }
       }
 
-      if (!state.some(({ inTheGun }) => inTheGun)) {
+      if (!players.some(({ inTheGun }) => inTheGun)) {
         console.log("fuck");
-        state[activeIndex].inTheGun = true;
+        players[activeIndex].inTheGun = true;
       }
 
-      return [...state];
+      return {
+        ...rest,
+        present: [...players],
+      };
     });
   };
 
@@ -268,23 +284,27 @@ export default Game = ({ navigation }) => {
   const handleNewHand = () => {
     const [winnings, playerCredits] = calculatedWinnings();
 
-    setPlayerStats((state) => {
-      const dealerIndex = playerStats.findIndex(({ isDealer }) => isDealer);
-
-      const updatedWinnings = state.map((player, index) => {
+    setPlayerStatsHistory(({ past, present: players }) => {
+      const updatedWinnings = players.map((player, index) => {
         player.balance +=
           player.id === winningPlayer.id ? winnings : playerCredits[index];
 
         return player;
       });
 
-      return setupNewHand(updatedWinnings, dealerIndex);
+      const updatedPlayers = setupNewHand(updatedWinnings, options);
+
+      return (newHistory = {
+        past: [...past, updatedPlayers],
+        present: updatedPlayers,
+        future: [],
+      });
     });
 
     setWinnerAlertVisible(false); //close winner alert
 
     setReraise(playerStats.map(() => 0)); //reset reraise counts
-    setCurrentHand((state) => (state += 1)); // up hand count
+    //setCurrentHand((state) => (state += 1)); // up hand count
   };
 
   useEffect(() => {
@@ -332,9 +352,7 @@ export default Game = ({ navigation }) => {
         viewPosition: 0.5,
       });
     }
-  }, [activePlayerIndex]);
-
-  console.log(playerStats);
+  }, [activePlayerIndex, promptWinnerSelection]);
 
   return (
     <ThemedView style={{ flex: 1 }}>
@@ -439,6 +457,7 @@ export default Game = ({ navigation }) => {
               promptWinnerSelection={promptWinnerSelection}
               maxRaiseReached={reraise[activePlayerIndex] >= maxReraise}
               activePlayerIndex={activePlayerIndex}
+              increment={increment}
             />
           </View>
         </SafeAreaView>

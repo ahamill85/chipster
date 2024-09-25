@@ -10,6 +10,7 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { useSelector } from "react-redux";
 import AddContactFormModal from "@/components/Players/AddContactFormModal";
+import Options from "../components/Options/Options";
 
 // Screens
 const WelcomeScreen = ({ navigation }) => {
@@ -33,9 +34,12 @@ const WelcomeScreen = ({ navigation }) => {
         >
           CHIPSTER
         </ThemedText>
-        <View>
+        <View style={{gap: 20}}>
           <ThemedButton onPress={() => navigation.navigate("players")}>
             New Game
+          </ThemedButton>
+          <ThemedButton onPress={() => navigation.navigate("options")}>
+            Options
           </ThemedButton>
         </View>
       </View>
@@ -95,6 +99,14 @@ const App = () => {
           title: "Set Players",
           ...screenStyles,
         })}
+      />
+      <Stack.Screen
+        name="options"
+        component={Options}
+        options={{
+          title: "Options",
+          ...screenStyles,
+        }}
       />
       <Stack.Screen
         name="game"

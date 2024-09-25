@@ -7,7 +7,7 @@ const VerticalRule = () => (
   <View
     style={{
       width: StyleSheet.hairlineWidth,
-      backgroundColor: useThemeColor({}, "tint1"),
+      backgroundColor: useThemeColor({}, "rules"),
     }}
   />
 );

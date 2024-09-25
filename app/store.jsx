@@ -1,12 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 import playersSlice from "@/features/slices/playersSlice";
-import gameSlice from "@/features/slices/gameSlice";
-import handSlice from "@/features/slices/handSlice";
+import optionsSlice from "@/features/slices/optionsSlice";
 
 export const store = configureStore({
   reducer: {
     players: playersSlice,
-    game: gameSlice,
-    hand: handSlice,
+    options: optionsSlice,
   },
 });

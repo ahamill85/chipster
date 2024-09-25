@@ -11,11 +11,12 @@ export default ThemedTextInput = forwardRef((props, ref) => {
         color: "#000",
         borderWidth: 1,
         borderRadius: 10,
-        paddingLeft: 20,
+        paddingHorizontal: 20,
         fontSize: 20,
         border: 0,
-        backgroundColor: useThemeColor({}, "buttonBackground"),
-        color: useThemeColor({}, "buttonText"),
+        borderColor: useThemeColor({}, "tint2"),
+        backgroundColor: useThemeColor({}, "highlight"),
+        color: useThemeColor({}, "text"),
       }}
       placeholderTextColor={"#dbdbdb"}
       {...props}

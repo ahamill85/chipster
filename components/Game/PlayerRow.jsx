@@ -25,9 +25,9 @@ export default PlayerRow = ({
   const background = useThemeColor({}, "buttonBackground");
   const color = useThemeColor({}, shouldPrompt ? "buttonText" : "text");
   const highlight = useThemeColor({}, "highlight");
-  const tint = useThemeColor({}, "tint1");
+  const rules = useThemeColor({}, "rules");
 
-  const currentBet = bets[currentRound];
+  const currentBet = bets.reduce((round, total) => total + round, 0);
 
   const rowOpacity = () => {
     if (status === "fold") return 0.6;
@@ -106,7 +106,7 @@ export default PlayerRow = ({
         <View
           style={{
             height: StyleSheet.hairlineWidth,
-            backgroundColor: tint,
+            backgroundColor: rules,
           }}
         />
       )}

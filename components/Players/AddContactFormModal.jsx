@@ -129,7 +129,7 @@ export default AddContactFormModal = ({ handleClose, ...rest }) => {
             ItemSeparatorComponent={() => (
               <View
                 style={{
-                  backgroundColor: useThemeColor({}, "tint1"),
+                  backgroundColor: useThemeColor({}, "rules"),
                   height: StyleSheet.hairlineWidth,
                 }}
               />

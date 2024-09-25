@@ -96,7 +96,7 @@ export default PlayerRow = ({
                 columnGap: 20,
               }}
             >
-              <Avatar size={50} source={item.avatar} />
+              <Avatar size={50} source={item.avatar} color={useThemeColor({}, "text")} />
               <ThemedView>
                 <ThemedText type="default">{item.name}</ThemedText>
               </ThemedView>
@@ -104,7 +104,7 @@ export default PlayerRow = ({
             <View
               style={{
                 height: StyleSheet.hairlineWidth,
-                backgroundColor: useThemeColor({}, "tint1"),
+                backgroundColor: useThemeColor({}, "rules"),
               }}
             />
           </Pressable>
@@ -113,43 +113,3 @@ export default PlayerRow = ({
     </SwipeableItem>
   );
 };
-
-const styles = StyleSheet.create({
-  itemSeparator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: "gray",
-  },
-  inputRow: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-  },
-  input: {
-    height: 60,
-    backgroundColor: "#fff",
-    color: "#000",
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingLeft: 20,
-    fontSize: 20,
-    border: 0,
-  },
-  backdrop: {
-    flex: 1,
-    justifyContent: "center",
-    backgroundColor: "rgba(0,0,0,0.3)",
-    padding: 20,
-  },
-  modal: {
-    padding: 20,
-    borderRadius: 20,
-    gap: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-});

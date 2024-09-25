@@ -1,59 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = [
-  // {
-  //   id: 1,
-  //   name: "Samantha",
-  //   currentBet: 0,
-  //   balance: 100,
-  //   avatar: null,
-  //   isDealer: true,
-  //   status: "ready",
-  //   inTheGun: false,
-  // },
-  // {
-  //   id: 11,
-  //   name: "Anthony",
-  //   currentBet: 0,
-  //   balance: 50,
-  //   avatar: null,
-  //   isDealer: false,
-  //   status: "ready",
-  //   inTheGun: true,
-  // },
-  // {
-  //   id: 21,
-  //   name: "Harper",
-  //   currentBet: 0,
-  //   balance: 100,
-  //   avatar: null,
-  //   isDealer: false,
-  //   status: "ready",
-  //   inTheGun: false,
-  // },
-  // {
-  //   id: 32,
-  //   name: "Cameron",
-  //   currentBet: 0,
-  //   balance: 100,
-  //   avatar: null,
-  //   isDealer: false,
-  //   status: "ready",
-  //   inTheGun: false,
-  // },
-];
-
-const defaults = {
-  //currentBet: null,
-  balance: 100,
-  //isDealer: false,
-  //status: "ready",
-  //inTheGun: false,
-};
-
 export const playersSlice = createSlice({
   name: "players",
-  initialState: initialState,
+  initialState: [],
   reducers: {
     startGame: (state, action) => {
       const dealerIndex = action.payload;
@@ -68,7 +17,7 @@ export const playersSlice = createSlice({
       }
     },
     addPlayers: (state, { payload: newPlayers }) => {
-      state.push(...newPlayers.map((player) => ({ ...player, ...defaults })));
+      state.push(...newPlayers);
     },
     removePlayer: (state, action) => {
       return state.filter(({ id }) => id !== action.payload);

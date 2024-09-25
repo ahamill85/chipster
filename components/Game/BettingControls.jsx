@@ -16,6 +16,7 @@ export default BettingControls = ({
   promptWinnerSelection,
   maxRaiseReached,
   activePlayerIndex,
+  increment,
   ...rest
 }) => {
   const [betAmount, setBetAmount] = useState(null);
@@ -64,7 +65,7 @@ export default BettingControls = ({
           </ThemedButton>
           <ThemedButton
             type="circle"
-            onPress={() => setBetAmount((count) => count - 1)}
+            onPress={() => setBetAmount((count) => count - increment)}
             style={{ opacity: betAmount <= callAmount ? 0.5 : 1 }}
             disabled={betAmount <= callAmount}
           >
@@ -91,6 +92,8 @@ export default BettingControls = ({
               if (!text) newText = 0;
               if (newText > activePlayerBalance) newText = activePlayerBalance;
 
+              newText = Math.floor(newText / increment) * increment;
+
               setBetAmount(newText);
             }}
             textContentType="none"
@@ -106,7 +109,7 @@ export default BettingControls = ({
             disabled={maxRaiseReached || betAmount >= activePlayerBalance}
             onPress={(event) =>
               setBetAmount((count) => {
-                return count + 1;
+                return count + increment;
               })
             }
           >
