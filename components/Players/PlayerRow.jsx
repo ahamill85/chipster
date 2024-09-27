@@ -15,46 +15,57 @@ import Avatar from "../Avatar";
 const QuickActions = ({ player, editItem, deleteItem }) => {
   const { close } = useSwipeableItemParams();
 
+  const warningBackground = useThemeColor({}, "warningBackground");
+  const warningText = useThemeColor({}, "warningText");
+  const errorBackground = useThemeColor({}, "errorBackground");
+  const errorText = useThemeColor({}, "errorText");
+
   return (
-    <View style={{ flex: 1, flexDirection: "row", justifyContent: "flex-end" }}>
-      <View style={{ flexGrow: 0, width: 100, height: "100%" }}>
+    <View
+      style={{
+        flexDirection: "row",
+        width: 200,
+        height: "100%",
+        alignSelf: "flex-end",
+        alignItems: "stretch",
+      }}
+    >
+      <View
+        style={{
+          flex: 1,
+        }}
+      >
         <TouchableOpacity
           style={{
-            flex: 1,
+            height: "100%",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: useThemeColor({}, "warningBackground"),
+            backgroundColor: warningBackground,
           }}
           onPress={() => {
             editItem(player);
             close();
           }}
         >
-          <ThemedText
-            type="defaultSemiBold"
-            style={{ color: useThemeColor({}, "warningText") }}
-          >
+          <ThemedText type="defaultSemiBold" style={{ color: warningText }}>
             EDIT
           </ThemedText>
         </TouchableOpacity>
       </View>
-      <View style={{ flexGrow: 0, width: 100, height: "100%" }}>
+      <View style={{ flex: 1 }}>
         <TouchableOpacity
           style={{
-            flex: 1,
+            height: "100%",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: useThemeColor({}, "errorBackground"),
+            backgroundColor: errorBackground,
           }}
           onPress={() => {
             deleteItem(player);
             close();
           }}
         >
-          <ThemedText
-            type="defaultSemiBold"
-            style={{ color: useThemeColor({}, "errorText") }}
-          >
+          <ThemedText type="defaultSemiBold" style={{ color: errorText }}>
             DELETE
           </ThemedText>
         </TouchableOpacity>
@@ -74,7 +85,7 @@ export default PlayerRow = ({
 
   return (
     <SwipeableItem
-      style={{ flex: 1 }}
+      //style={{ flex: 1 }}
       renderUnderlayLeft={() => (
         <QuickActions
           player={item}
@@ -83,6 +94,7 @@ export default PlayerRow = ({
         />
       )}
       snapPointsLeft={[200]}
+      snapPointsRight={[200]}
     >
       <ScaleDecorator>
         <ShadowDecorator>
@@ -96,7 +108,12 @@ export default PlayerRow = ({
                 columnGap: 20,
               }}
             >
-              <Avatar name={item.name} size={50} source={item.avatar} color={useThemeColor({}, "text")} />
+              <Avatar
+                name={item.name}
+                size={50}
+                source={item.avatar}
+                color={useThemeColor({}, "text")}
+              />
               <ThemedView>
                 <ThemedText type="default">{item.name}</ThemedText>
               </ThemedView>
