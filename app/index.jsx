@@ -14,6 +14,8 @@ import Options from "../components/Options/Options";
 
 // Screens
 const WelcomeScreen = ({ navigation }) => {
+  const players = useSelector((state) => state.players);
+
   return (
     <SafeAreaView
       style={{
@@ -34,9 +36,16 @@ const WelcomeScreen = ({ navigation }) => {
         >
           CHIPSTER
         </ThemedText>
-        <View style={{gap: 20}}>
+        <View style={{ gap: 20 }}>
+          <ThemedButton
+            onPress={() => navigation.navigate("game")}
+            disabled={!players.length}
+            style={{ opacity: !players.length ? 0.5 : 1 }}
+          >
+            Start Game
+          </ThemedButton>
           <ThemedButton onPress={() => navigation.navigate("players")}>
-            New Game
+            Add Players
           </ThemedButton>
           <ThemedButton onPress={() => navigation.navigate("options")}>
             Options
@@ -83,20 +92,21 @@ const App = () => {
         name="players"
         component={SetPlayers}
         options={({ navigation, route }) => ({
-          headerRight: () => (
-            <ThemedButton
-              disabled={players.length < 2}
-              style={{
-                color: useThemeColor({}, "text"),
-                opacity: players.length < 2 ? 0.5 : 1,
-              }}
-              type="headerNav"
-              onPress={() => navigation.navigate("game")}
-            >
-              Start Game
-            </ThemedButton>
-          ),
+          // headerRight: () => (
+          //   <ThemedButton
+          //     disabled={players.length < 2}
+          //     style={{
+          //       color: useThemeColor({}, "text"),
+          //       opacity: players.length < 2 ? 0.5 : 1,
+          //     }}
+          //     type="headerNav"
+          //     onPress={() => navigation.navigate("game")}
+          //   >
+          //     Start Game
+          //   </ThemedButton>
+          // ),
           title: "Set Players",
+          presentation: "modal",
           ...screenStyles,
         })}
       />
@@ -105,6 +115,7 @@ const App = () => {
         component={Options}
         options={{
           title: "Options",
+          presentation: "modal",
           ...screenStyles,
         }}
       />
@@ -114,6 +125,7 @@ const App = () => {
         options={{
           headerShown: false,
           title: "Game",
+          gestureEnabled: false,
           ...screenStyles,
         }}
       />

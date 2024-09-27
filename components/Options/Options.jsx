@@ -1,10 +1,8 @@
-import { useState } from "react";
 import { ScrollView, StyleSheet, Switch, TextInput, View } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
 import { ThemedButton } from "../ThemedButton";
-import ThemedTextInput from "../ThemedTextInput";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -89,7 +87,7 @@ const IncrementControls = ({
   );
 };
 
-export default () => {
+export default ({ style, ...rest }) => {
   const options = useSelector((state) => state.options);
 
   const dispatch = useDispatch();
@@ -102,7 +100,7 @@ export default () => {
   const rules = useThemeColor({}, "rules");
 
   return (
-    <ThemedView style={{ flex: 1 }}>
+    <ThemedView style={[{ flex: 1 }, style]}>
       <ScrollView stickyHeaderIndices={[0, 2]} style={{ flex: 1 }}>
         <ThemedView>
           <ThemedText style={styles.sectionTitle} type="subtitle">
@@ -250,10 +248,7 @@ export default () => {
           </View>
         </View>
         <ThemedView>
-          <ThemedText
-            style={styles.sectionTitle}
-            type="subtitle"
-          >
+          <ThemedText style={styles.sectionTitle} type="subtitle">
             Game
           </ThemedText>
           <View style={[styles.horizontalRule, { backgroundColor: rules }]} />
@@ -263,8 +258,15 @@ export default () => {
           <View style={styles.optionRow}>
             <ThemedText style={styles.optionLabel}>Player Dealer</ThemedText>
             <Switch
-              trackColor={{ false: switchInactiveTrackColor, true: switchActiveTrackColor }}
-              thumbColor={options.playerDealer ? switchActiveThumbColor : switchInactiveThumbColor}
+              trackColor={{
+                false: switchInactiveTrackColor,
+                true: switchActiveTrackColor,
+              }}
+              thumbColor={
+                options.playerDealer
+                  ? switchActiveThumbColor
+                  : switchInactiveThumbColor
+              }
               ios_backgroundColor={switchInactiveTrackColor}
               onValueChange={(value) =>
                 dispatch(
@@ -282,8 +284,15 @@ export default () => {
           <View style={styles.optionRow}>
             <ThemedText style={styles.optionLabel}>Rotating Dealer</ThemedText>
             <Switch
-              trackColor={{ false: switchInactiveTrackColor, true: switchActiveTrackColor }}
-              thumbColor={options.rotatingDealer ? switchActiveThumbColor : switchInactiveThumbColor}
+              trackColor={{
+                false: switchInactiveTrackColor,
+                true: switchActiveTrackColor,
+              }}
+              thumbColor={
+                options.rotatingDealer
+                  ? switchActiveThumbColor
+                  : switchInactiveThumbColor
+              }
               ios_backgroundColor={switchInactiveTrackColor}
               onValueChange={(value) =>
                 dispatch(

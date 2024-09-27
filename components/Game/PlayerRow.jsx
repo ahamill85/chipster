@@ -77,7 +77,7 @@ export default PlayerRow = ({
               backgroundColor: shouldPrompt ? background : "transparent",
             }}
           >
-            <Avatar size={50} source={avatar} color={color} />
+            <Avatar name={name} size={50} source={avatar} color={color} />
             <View style={{ flex: 1, flexDirection: "row" }}>
               <ThemedText type="default" style={{ color }}>
                 {name}

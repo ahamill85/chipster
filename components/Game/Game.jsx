@@ -6,7 +6,7 @@ import { ThemedView } from "../ThemedView";
 
 import { ThemedButton } from "../ThemedButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import PlayerRow from "./PlayerRow";
 import WinnerConfirmModal from "./WinnerConfirmModal";
 import ThemedModal from "../ThemedModal";
@@ -20,7 +20,14 @@ import Animated, {
   SlideInDown,
   SlideOutDown,
 } from "react-native-reanimated";
+
 import { BlurView } from "expo-blur";
+
+import { FontAwesome, FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
+import { TouchableHighlight } from "react-native";
+import { TouchableOpacity } from "react-native";
+import Options from "../Options/Options";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // const maxReraise = 1;
 // const maxRounds = 5;
@@ -100,21 +107,24 @@ const setupNewHand = (players, options) => {
   return [...playerArr];
 };
 
-export default Game = () => {
+export default Game = ({ navigation }) => {
   const players = useSelector((state) => state.players);
   const { maxReraise, maxRounds, startingBalance, increment, ...options } =
     useSelector((state) => state.options);
 
   //game state vars
   const [reraise, setReraise] = useState(players.map(() => 0));
-  const [playerStatsHistory, setPlayerStatsHistory] = useState(() => ({
-    past: [],
-    present: setupNewHand(
+  const [playerStatsHistory, setPlayerStatsHistory] = useState(() => {
+    const newHand = setupNewHand(
       players.map((player) => ({ ...player, balance: startingBalance })),
       options
-    ),
-    future: [],
-  }));
+    );
+    return {
+      past: [newHand],
+      present: newHand,
+      future: [],
+    };
+  });
 
   //derived state vars
   const { present: playerStats } = playerStatsHistory;
@@ -128,12 +138,19 @@ export default Game = () => {
   const paceAmount = Math.max(...currentRoundBets);
 
   //memoized vars
-  const potAmount = useMemo(() => bets.reduce(
-    (totalSum, playerBets) =>
-      totalSum +
-      playerBets.reduce((playerTotal, roundBet) => playerTotal + roundBet, 0),
-    0
-  ), [playerStats]);
+  const potAmount = useMemo(
+    () =>
+      bets.reduce(
+        (totalSum, playerBets) =>
+          totalSum +
+          playerBets.reduce(
+            (playerTotal, roundBet) => playerTotal + roundBet,
+            0
+          ),
+        0
+      ),
+    [playerStats]
+  );
   const callAmount = useMemo(() => {
     if (activePlayerIndex < 0) return 0;
     const currentBet = currentRoundBets[activePlayerIndex];
@@ -149,6 +166,9 @@ export default Game = () => {
   const [winnerModalVisible, setWinnerModalVisible] = useState(false);
   const [winningPlayer, setWinningPlayer] = useState(null);
   const [winnerAlertVisible, setWinnerAlertVisible] = useState(false);
+  const [optionsModalVisible, setOptionsModalVisible] = useState(false);
+
+  const [overlayHeight, setOverlayHeight] = useState(0);
 
   //refs
   const listElement = useRef(null);
@@ -349,122 +369,145 @@ export default Game = () => {
       listElement.current.scrollToIndex({
         index: activePlayerIndex,
         animated: true,
-        viewPosition: 0.5,
+        viewPosition: 0,
+        viewOffset: safeArea.top + 50,
       });
     }
   }, [activePlayerIndex, promptWinnerSelection]);
 
+  const safeArea = useSafeAreaInsets();
+
+  console.log(playerStatsHistory.past);
+
   return (
-    <ThemedView style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
+      <FlatList
+        style={{
+          backgroundColor: useThemeColor({}, "background"),
+          flex: 1,
+        }}
+        data={playerStats}
+        renderItem={({ item: player, index }) => (
+          <PlayerRow
+            promptWinner={promptWinnerSelection}
+            isTurn={player.inTheGun && !promptWinnerSelection}
+            player={player}
+            key={player.id}
+            currentRound={currentRound}
+            onPress={() => {
+              setPlayerSelected(playerStats[index]);
+              setWinnerModalVisible(true);
+            }}
+            isLast={index === playerStats.length - 1}
+          />
+        )}
+        ref={listElement}
+        onScrollToIndexFailed={() => {}}
+        automaticallyAdjustContentInsets={false}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        contentInset={{ top: safeArea.top + 50, bottom: overlayHeight }}
+      />
+      {/* <SafeAreaView style={{ flex: 1 }}>*/}
+      <BlurView
+        style={{
+          flexDirection: "row",
+          columnGap: 20,
+          alignItems: "center",
+          paddingHorizontal: 20,
+          paddingVertical: 10,
+          flex: 0,
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          paddingTop: safeArea.top,
+          opacity: 0.9,
+          height: safeArea.top + 50,
+          backgroundColor: useThemeColor({}, "rule"),
+        }}
+      >
         <View
           style={{
-            flexDirection: "row",
-            columnGap: 20,
+            width: 50,
+            justifyContent: "center",
             alignItems: "center",
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-            flex: 0,
           }}
         >
-          <View style={{ width: 50 }}></View>
-          <View style={{ flex: 1 }}>
-            <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
-              NAME
-            </ThemedText>
-          </View>
-          <View style={{ width: 50 }}>
-            <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
-              BET
-            </ThemedText>
-          </View>
-          <View style={{ width: 60 }}>
-            <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
-              BALANCE
-            </ThemedText>
-          </View>
-        </View>
-        <FlatList
-          style={{
-            backgroundColor: useThemeColor({}, "background"),
-            flex: 1,
-          }}
-          data={playerStats}
-          renderItem={({ item: player, index }) => (
-            <PlayerRow
-              promptWinner={promptWinnerSelection}
-              isTurn={player.inTheGun && !promptWinnerSelection}
-              player={player}
-              key={player.id}
-              currentRound={currentRound}
-              onPress={() => {
-                setPlayerSelected(playerStats[index]);
-                setWinnerModalVisible(true);
-              }}
-              isLast={index === playerStats.length - 1}
+          <TouchableOpacity onPress={() => setOptionsModalVisible(true)}>
+            <FontAwesome6
+              size={24}
+              name="bars"
+              style={{ color: useThemeColor({}, "buttonBackground") }}
             />
-          )}
-          ref={listElement}
-          onScrollToIndexFailed={() => {}}
-        />
-      </SafeAreaView>
+          </TouchableOpacity>
+        </View>
+        <View style={{ flex: 1 }}>
+          <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
+            NAME
+          </ThemedText>
+        </View>
+        <View style={{ width: 50 }}>
+          <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
+            BET
+          </ThemedText>
+        </View>
+        <View style={{ width: 60 }}>
+          <ThemedText type="defaultSemiBold" style={{ fontSize: 12 }}>
+            BALANCE
+          </ThemedText>
+        </View>
+      </BlurView>
 
-      {/* {activePlayerIndex < 0 ? (
-        <Animated.View
-          exiting={SlideOutDown}
-          entering={SlideInDown}
-          layout={LinearTransition}
-        >
-          <SafeAreaView
-            style={{
-              backgroundColor: "rgba(0,0,0,0.1)",
-              borderTopLeftRadius: 30,
-              borderTopRightRadius: 30,
-            }}
-          >
-            <View
-              style={{
-                padding: 20,
-              }}
-            >
-              <ThemedButton onPress={handleStartGame}>Start Game</ThemedButton>
-            </View>
-          </SafeAreaView>
-        </Animated.View>
-      ) : ( */}
-      <Animated.View
+      {/* </SafeAreaView> */}
+      {/* <Animated.View
         exiting={SlideOutDown}
         entering={SlideInDown}
         layout={LinearTransition}
+        style={{backgroundColor: useThemeColor({}, "background"),}}
+      > */}
+      <BlurView
+        style={{
+          paddingBottom: safeArea.bottom,
+          paddingTop: 30,
+          backgroundColor: useThemeColor({}, "rule"),
+          borderTopLeftRadius: 30,
+          borderTopRightRadius: 30,
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          overflow: "hidden",
+        }}
+        onLayout={(event) => {
+          const { width, height } = event.nativeEvent.layout;
+          setOverlayHeight(height);
+        }}
       >
-        <SafeAreaView
-          style={{
-            backgroundColor: "rgba(0,0,0,0.1)",
-            borderTopLeftRadius: 30,
-            borderTopRightRadius: 30,
-          }}
-        >
-          <View style={{ paddingTop: 30 }}>
-            <Stats
-              currentHand={currentHand}
-              currentRound={currentRound}
-              potAmount={potAmount}
-            />
-            <BettingControls
-              activePlayerBalance={playerStats[activePlayerIndex].balance}
-              callAmount={callAmount}
-              handleBet={handleBet}
-              promptWinnerSelection={promptWinnerSelection}
-              maxRaiseReached={reraise[activePlayerIndex] >= maxReraise}
-              activePlayerIndex={activePlayerIndex}
-              increment={increment}
-            />
-          </View>
-        </SafeAreaView>
-      </Animated.View>
-      {/* )} */}
-      {/* </SafeAreaView> */}
-
+        {/* <View style={{ paddingHorizontal: 20 }}>
+            <ThemedButton
+              onPress={() => {
+                setToggle((toggle) => !toggle);
+              }}
+            >
+              Toggle
+            </ThemedButton>
+          </View> */}
+        <Stats
+          currentHand={currentHand}
+          currentRound={currentRound}
+          potAmount={potAmount}
+        />
+        <BettingControls
+          activePlayerBalance={playerStats[activePlayerIndex].balance}
+          callAmount={callAmount}
+          handleBet={handleBet}
+          promptWinnerSelection={promptWinnerSelection}
+          maxRaiseReached={reraise[activePlayerIndex] >= maxReraise}
+          activePlayerIndex={activePlayerIndex}
+          increment={increment}
+        />
+      </BlurView>
+      {/* </Animated.View> */}
       <WinnerConfirmModal
         player={playerSelected}
         animationType="slide"
@@ -490,7 +533,11 @@ export default Game = () => {
         {winningPlayer && (
           <ThemedView style={{ gap: 20 }}>
             <View style={{ alignItems: "center", gap: 10 }}>
-              <Avatar source={winningPlayer.avatar} size={160} />
+              <Avatar
+                name={winningPlayer.name}
+                source={winningPlayer.avatar}
+                size={160}
+              />
               <ThemedText type="title">Winner!</ThemedText>
               <ThemedText type="subtitle">{winningPlayer.name}</ThemedText>
               <ThemedText type="subtitle">
@@ -501,6 +548,68 @@ export default Game = () => {
           </ThemedView>
         )}
       </ThemedModal>
-    </ThemedView>
+      <ThemedModal
+        animationType="slide"
+        transparent={true}
+        visible={optionsModalVisible}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <ThemedText type="subtitle">Options</ThemedText>
+          <TouchableOpacity onPress={() => setOptionsModalVisible(false)}>
+            <FontAwesome5
+              name="times"
+              size={30}
+              style={{ color: useThemeColor({}, "tint1") }}
+            />
+          </TouchableOpacity>
+        </View>
+        <ThemedView style={{ gap: 20 }}>
+          <ThemedButton
+            icon={
+              <FontAwesome6
+                name="arrow-rotate-left"
+                size={22}
+                style={{ color: useThemeColor({}, "buttonText") }}
+              />
+            }
+            onPress={() => {
+              setPlayerStatsHistory(({ past, present, future }) => {
+                return {
+                  present: past.pop(),
+                  past,
+                  future,
+                };
+              });
+              console.log("go back a hand");
+            }}
+          >
+            Reset Current Hand
+          </ThemedButton>
+          <ThemedButton
+            onPress={() => {
+              setOptionsModalVisible(false);
+              navigation.navigate("options");
+            }}
+          >
+            Update Options
+          </ThemedButton>
+          <ThemedButton
+            type="danger"
+            onPress={() => {
+              setOptionsModalVisible(false);
+              navigation.navigate("welcome");
+            }}
+          >
+            Exit Game
+          </ThemedButton>
+        </ThemedView>
+      </ThemedModal>
+    </View>
   );
 };

@@ -25,8 +25,8 @@ const ContactRow = ({ contact, isSelected, handleSelected, disabled }) => {
           flexDirection: "row",
           gap: 20,
           alignItems: "center",
-          paddingVertical: 15,
-          paddingHorizontal: 20,
+          paddingVertical: 5,
+          paddingHorizontal: 10,
           opacity: disabled ? 0.5 : 1,
           backgroundColor: isSelected || disabled ? iconColor : "transparent",
           borderRadius: 10,
@@ -36,8 +36,8 @@ const ContactRow = ({ contact, isSelected, handleSelected, disabled }) => {
         <View
           style={{
             borderRadius: 30,
-            width: 30,
-            height: 30,
+            width: 50,
+            height: 50,
             borderWidth: 2,
             borderColor: "white",
             alignItems: "center",
@@ -49,7 +49,7 @@ const ContactRow = ({ contact, isSelected, handleSelected, disabled }) => {
           {isSelected || disabled ? (
             <FontAwesome6 name="check" size={20} color={iconColor} />
           ) : (
-            <Avatar size={30} source={avatar} />
+            <Avatar name={name} size={50} source={avatar} />
           )}
         </View>
         <ThemedText style={{color: isSelected || disabled ? iconBackground : iconColor}} type="h3">{name}</ThemedText>

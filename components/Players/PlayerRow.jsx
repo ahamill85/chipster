@@ -96,7 +96,7 @@ export default PlayerRow = ({
                 columnGap: 20,
               }}
             >
-              <Avatar size={50} source={item.avatar} color={useThemeColor({}, "text")} />
+              <Avatar name={item.name} size={50} source={item.avatar} color={useThemeColor({}, "text")} />
               <ThemedView>
                 <ThemedText type="default">{item.name}</ThemedText>
               </ThemedView>
