@@ -94,7 +94,6 @@ export default PlayerRow = ({
         />
       )}
       snapPointsLeft={[200]}
-      snapPointsRight={[200]}
     >
       <ScaleDecorator>
         <ShadowDecorator>
@@ -118,12 +117,7 @@ export default PlayerRow = ({
                 <ThemedText type="default">{item.name}</ThemedText>
               </ThemedView>
             </ThemedView>
-            <View
-              style={{
-                height: StyleSheet.hairlineWidth,
-                backgroundColor: useThemeColor({}, "rules"),
-              }}
-            />
+            
           </Pressable>
         </ShadowDecorator>
       </ScaleDecorator>

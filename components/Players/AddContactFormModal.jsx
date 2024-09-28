@@ -107,7 +107,7 @@ export default AddContactFormModal = ({ handleClose, ...rest }) => {
 
         if (contacts.length > 0) {
           setUsersContacts(contacts);
-          setSelectedContacts(contacts.slice(0, 10));
+          //setSelectedContacts(contacts.slice(0, 10));
         }
       }
     })();

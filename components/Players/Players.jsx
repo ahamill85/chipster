@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { SafeAreaView, View } from "react-native";
+import { SafeAreaView, StyleSheet, View } from "react-native";
 
 import { ThemedView } from "../ThemedView";
 
@@ -16,6 +16,7 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import AddContactFormModal from "./AddContactFormModal";
+import { FadeInUp, FadeOutUp, LinearTransition } from "react-native-reanimated";
 
 export default Players = () => {
   const players = useSelector((state) => state.players);
@@ -44,6 +45,17 @@ export default Players = () => {
             <DraggableFlatList
               data={players}
               extraData={players}
+              ItemSeparatorComponent={({ highlighted }) => (
+                <View
+                  style={{
+                    height: StyleSheet.hairlineWidth,
+                    backgroundColor: useThemeColor({}, "rules"),
+                  }}
+                />
+              )}
+              itemLayoutAnimation={LinearTransition}
+              //itemEnteringAnimation={FadeInUp}
+              //itemExitingAnimation={FadeOutUp}
               renderItem={(params) => (
                 <PlayerRow
                   {...params}
