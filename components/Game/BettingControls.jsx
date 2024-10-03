@@ -31,7 +31,7 @@ export default BettingControls = ({
 
   useEffect(() => {
     setBetAmount(callAmount);
-  }, [activePlayerIndex]);
+  }, [callAmount]);
 
   return (
     <KeyboardAvoidingView

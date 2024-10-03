@@ -16,7 +16,11 @@ export default Avatar = ({
     .slice(0, 2)
     .toUpperCase();
 
+  //const { color = useThemeColor({}, "buttonText"), ...styles } = style;
+
   const color = useThemeColor({}, "buttonText");
+
+  //console.log(style)
 
   return (
     <>
@@ -43,7 +47,7 @@ export default Avatar = ({
             ...style,
           }}
         >
-          <Text style={{ color, fontSize: 24, fontWeight: "600" }}>
+          <Text style={{ color, fontSize: size * 0.5, fontWeight: "600" }}>
             {initials}
           </Text>
         </View>
