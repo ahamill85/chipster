@@ -8,7 +8,7 @@ import { ThemedView } from "../ThemedView";
 
 export default InGameMenu = ({ navigation, handleDismiss, handleReset, ...rest }) => {
   return (
-    <ThemedModal animationType="slide" transparent={true} {...rest}>
+    <ThemedModal {...rest}>
       <View
         style={{
           flexDirection: "row",

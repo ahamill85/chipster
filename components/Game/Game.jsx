@@ -162,7 +162,6 @@ export default Game = ({ navigation }) => {
   const [winningPlayer, setWinningPlayer] = useState(null);
   const [winnerAlertVisible, setWinnerAlertVisible] = useState(false);
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
-
   const [overlayHeight, setOverlayHeight] = useState(0);
 
   //refs
@@ -492,13 +491,12 @@ export default Game = ({ navigation }) => {
           maxRaiseReached={reraise[activePlayerIndex] >= maxReraise}
           activePlayerIndex={activePlayerIndex}
           increment={increment}
+          potAmount={potAmount}
         />
       </BlurView>
       {/* </Animated.View> */}
       <WinnerConfirmModal
         player={playerSelected}
-        animationType="slide"
-        transparent={true}
         visible={winnerModalVisible}
         handleCancel={() => setWinnerModalVisible(false)}
         handleConfirm={() => {
@@ -512,11 +510,7 @@ export default Game = ({ navigation }) => {
           //console.log("modal closed");
         }}
       />
-      <ThemedModal
-        animationType="slide"
-        transparent={true}
-        visible={winnerAlertVisible}
-      >
+      <ThemedModal visible={winnerAlertVisible}>
         {winningPlayer && (
           <ThemedView style={{ gap: 20 }}>
             <View style={{ alignItems: "center", gap: 10 }}>
@@ -543,7 +537,7 @@ export default Game = ({ navigation }) => {
         handleReset={() => {
           setPlayerStatsHistory(({ past, present, future }) => {
             return {
-              present: (past.length > 1) ? past.pop() : past[0],
+              present: past.length > 1 ? past.pop() : past[0],
               past,
               future,
             };
@@ -552,7 +546,7 @@ export default Game = ({ navigation }) => {
         }}
         handleDismiss={() => setOptionsModalVisible(false)}
       />
-      <ThemedModal animationType="slide" transparent={true} visible={gameOver}>
+      <ThemedModal visible={gameOver}>
         <ThemedText>Game Over {winningPlayer?.name}</ThemedText>
       </ThemedModal>
     </View>

@@ -10,10 +10,29 @@ import {
   incrementOption,
 } from "../../features/slices/optionsSlice";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { Picker } from "@react-native-picker/picker";
+import { useState } from "react";
+import ThemedModal from "../ThemedModal";
+import { TouchableOpacity } from "react-native";
+
+const presets = [
+  { label: "Custom", id: 0, value: {} },
+  { label: "No Limit Texas Hold'em", id: 1, value: {} },
+  { label: "Texas Hold'em", id: 1, value: {} },
+  { label: "Pot Limit Omaha", id: 2, value: {} },
+  { label: "5 Card Draw", id: 3, value: {} },
+];
+
+const limits = [
+  { label: "No Limit", id: 0, value: "none" },
+  { label: "Fixed", id: 1, value: "fixed" },
+  { label: "Pot", id: 2, value: "pot" },
+];
 
 const IncrementControls = ({
   onIncrement,
   onDecrement,
+  onChange,
   value,
   minValue,
   maxValue,
@@ -65,7 +84,7 @@ const IncrementControls = ({
           if (!text) newText = minValue;
           if (newText > maxValue) newText = maxValue;
 
-          dispatch(updateOptions({ ante: parseInt(newText) }));
+          onChange(parseInt(newText));
         }}
         textContentType="none"
         maxLength={3}
@@ -92,12 +111,22 @@ export default ({ style, ...rest }) => {
 
   const dispatch = useDispatch();
 
+  const [selectedPresetId, setSelectedPresetId] = useState(`${presets[0].id}`);
+  const [presetModalVisibility, setPresetModalVisibility] = useState(false);
+
+  const [limitModalVisibility, setLimitModalVisibility] = useState(false);
+
+  const text = useThemeColor({}, "text");
   const switchActiveTrackColor = useThemeColor({}, "buttonBackground");
   const switchActiveThumbColor = useThemeColor({}, "buttonText");
   const switchInactiveThumbColor = useThemeColor({}, "tint2");
   const switchInactiveTrackColor = useThemeColor({}, "tint1");
 
+  const selectedPreset = presets.find(({ id }) => `${id}` === selectedPresetId);
+  const selectedLimit = limits.find(({ value }) => value === options.limitType);
+
   const rules = useThemeColor({}, "rules");
+  const tint1 = useThemeColor({}, "tint1");
 
   return (
     <ThemedView style={[{ flex: 1 }, style]}>
@@ -109,6 +138,86 @@ export default ({ style, ...rest }) => {
           <View style={[styles.horizontalRule, { backgroundColor: rules }]} />
         </ThemedView>
         <View>
+          {/* Presets */}
+          {/* <View style={styles.optionRow}>
+            <ThemedText style={styles.optionLabel}>Game Presets</ThemedText>
+            <ThemedButton
+              icon={
+                <FontAwesome6
+                  size={18}
+                  name="bars"
+                  style={{ color: switchActiveThumbColor }}
+                />
+              }
+              style={{ flex: 1, fontSize: 18, textAlign: "left" }}
+              onPress={() => setPresetModalVisibility(true)}
+            >
+              {selectedPreset.label}
+            </ThemedButton>
+            <ThemedModal
+              visible={presetModalVisibility}
+              backdropDismiss={() => setPresetModalVisibility(false)}
+            >
+              <Picker
+                itemStyle={{ color: text }}
+                selectedValue={selectedPresetId}
+                onValueChange={(id) => {
+                  setSelectedPresetId(id);
+                }}
+              >
+                {presets.map((preset, index) => {
+                  return (
+                    <Picker.Item
+                      key={preset.id}
+                      label={preset.label}
+                      value={preset.id}
+                    />
+                  );
+                })}
+              </Picker>
+            </ThemedModal>
+          </View>
+          <View style={[styles.horizontalRule, { backgroundColor: rules }]} /> */}
+          {/* Limit */}
+          <View style={styles.optionRow}>
+            <ThemedText style={styles.optionLabel}>Limit</ThemedText>
+            <ThemedButton
+              icon={
+                <FontAwesome6
+                  size={18}
+                  name="bars"
+                  style={{ color: switchActiveThumbColor }}
+                />
+              }
+              style={{ flex: 1, fontSize: 18, textAlign: "left" }}
+              onPress={() => setLimitModalVisibility(true)}
+            >
+              {selectedLimit.label}
+            </ThemedButton>
+            <ThemedModal
+              visible={limitModalVisibility}
+              backdropDismiss={() => setLimitModalVisibility(false)}
+            >
+              <Picker
+                itemStyle={{ color: text }}
+                selectedValue={options.limitType}
+                onValueChange={(value) => {
+                  dispatch(updateOptions({ limitType: value }));
+                }}
+              >
+                {limits.map((limit) => {
+                  return (
+                    <Picker.Item
+                      key={limit.id}
+                      label={limit.label}
+                      value={limit.value}
+                    />
+                  );
+                })}
+              </Picker>
+            </ThemedModal>
+          </View>
+          <View style={[styles.horizontalRule, { backgroundColor: rules }]} />
           {/* Betting Increments*/}
           <View style={styles.optionRow}>
             <ThemedText style={styles.optionLabel}>
@@ -146,6 +255,9 @@ export default ({ style, ...rest }) => {
                   })
                 );
               }}
+              onChange={(value) => {
+                dispatch(updateOptions({ increment: value }));
+              }}
               value={options.increment}
               minValue={1}
               maxValue={20}
@@ -166,6 +278,9 @@ export default ({ style, ...rest }) => {
                   incrementOption({ key: "ante", value: -options.increment })
                 )
               }
+              onChange={(value) => {
+                dispatch(updateOptions({ ante: value }));
+              }}
               value={options.ante}
               minValue={0}
               maxValue={20}
@@ -192,6 +307,9 @@ export default ({ style, ...rest }) => {
                   })
                 )
               }
+              onChange={(value) => {
+                dispatch(updateOptions({ smallBlind: value }));
+              }}
               value={options.smallBlind}
               minValue={0}
               maxValue={20}
@@ -215,6 +333,9 @@ export default ({ style, ...rest }) => {
                   })
                 )
               }
+              onChange={(value) => {
+                dispatch(updateOptions({ bigBlind: value }));
+              }}
               value={options.bigBlind}
               minValue={0}
               maxValue={20}
@@ -241,6 +362,9 @@ export default ({ style, ...rest }) => {
                   })
                 )
               }
+              onChange={(value) => {
+                dispatch(updateOptions({ startingBalance: value }));
+              }}
               value={options.startingBalance}
               minValue={0}
               maxValue={1000}
@@ -316,6 +440,9 @@ export default ({ style, ...rest }) => {
               onDecrement={() =>
                 dispatch(incrementOption({ key: "maxReraise", value: -1 }))
               }
+              onChange={(value) => {
+                dispatch(updateOptions({ maxReraise: value }));
+              }}
               value={options.maxReraise}
               minValue={1}
               maxValue={5}
@@ -332,6 +459,9 @@ export default ({ style, ...rest }) => {
               onDecrement={() =>
                 dispatch(incrementOption({ key: "maxRounds", value: -1 }))
               }
+              onChange={(value) => {
+                dispatch(updateOptions({ maxRounds: value }));
+              }}
               value={options.maxRounds}
               minValue={0}
               maxValue={5}
@@ -359,5 +489,9 @@ const styles = StyleSheet.create({
   optionLabel: {
     flex: 1,
   },
-  sectionTitle: { paddingTop: 10, paddingBottom: 5, paddingHorizontal: 20 },
+  sectionTitle: {
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+  },
 });

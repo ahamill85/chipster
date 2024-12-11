@@ -121,6 +121,8 @@ export default AddContactFormModal = ({ handleClose, ...rest }) => {
             onChangeText={setFilterText}
             value={filterText}
             placeholder="Filter"
+            autoCorrect={false}
+            autoFocus={true}
           />
         </View>
         <View style={{ flexGrow: 0, flexShrink: 1, flexBasis: "auto" }}>

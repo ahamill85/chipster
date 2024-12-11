@@ -10,7 +10,9 @@ const initialState = {
   smallBlind: 0,
   bigBlind: 0,
   increment: 1,
+  minBet: 0,
   startingBalance: 100,
+  limitType: "none",
   //dealer vars
   rotatingDealer: false,
   startingDealer: 0,

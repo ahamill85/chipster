@@ -8,6 +8,7 @@ import { TextInput } from "react-native-gesture-handler";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
 
 export default BettingControls = ({
   activePlayerBalance,
@@ -17,8 +18,13 @@ export default BettingControls = ({
   maxRaiseReached,
   activePlayerIndex,
   increment,
+  potAmount,
   ...rest
 }) => {
+  const { limitType, smallBlind, bigBlind, ante } = useSelector(
+    (state) => state.options
+  );
+
   const [betAmount, setBetAmount] = useState(null);
 
   const headerHeight = useHeaderHeight();
@@ -32,6 +38,19 @@ export default BettingControls = ({
   useEffect(() => {
     setBetAmount(callAmount);
   }, [callAmount]);
+
+  const limit = () => {
+    let limit = activePlayerBalance;
+
+    switch (limitType) {
+      case "fixed":
+        limit = bigBlind;
+      case "pot":
+        limit = callAmount + potAmount;
+    }
+
+    return limit > activePlayerBalance ? activePlayerBalance : limit;
+  };
 
   return (
     <KeyboardAvoidingView
@@ -90,7 +109,7 @@ export default BettingControls = ({
               let newText = parseInt(text.replace(/[^0-9]/, ""));
 
               if (!text) newText = 0;
-              if (newText > activePlayerBalance) newText = activePlayerBalance;
+              if (newText > limit()) newText = limit();
 
               newText = Math.floor(newText / increment) * increment;
 
@@ -103,10 +122,9 @@ export default BettingControls = ({
           <ThemedButton
             type="circle"
             style={{
-              opacity:
-                maxRaiseReached || betAmount >= activePlayerBalance ? 0.5 : 1,
+              opacity: maxRaiseReached || betAmount >= limit() ? 0.5 : 1,
             }}
-            disabled={maxRaiseReached || betAmount >= activePlayerBalance}
+            disabled={maxRaiseReached || betAmount >= limit()}
             onPress={(event) =>
               setBetAmount((count) => {
                 return count + increment;
@@ -120,13 +138,13 @@ export default BettingControls = ({
             />
           </ThemedButton>
           <ThemedButton
-            disabled={betAmount === activePlayerBalance}
+            disabled={betAmount === limit()}
             style={{
-              opacity: betAmount === activePlayerBalance ? 0.5 : 1,
+              opacity: betAmount === limit() ? 0.5 : 1,
             }}
             type="circle"
             onPress={() => {
-              setBetAmount(activePlayerBalance);
+              setBetAmount(limit());
             }}
           >
             MAX
@@ -144,7 +162,9 @@ export default BettingControls = ({
               }}
               onPress={() => handleBet("bet", betAmount)}
               disabled={betAmount < callAmount || (!callAmount && !betAmount)}
-            >{BetText(betAmount, callAmount).toUpperCase()}</ThemedButton>
+            >
+              {BetText(betAmount, callAmount).toUpperCase()}
+            </ThemedButton>
           </View>
           <View style={{ flexDirection: "row" }}>
             {callAmount ? (

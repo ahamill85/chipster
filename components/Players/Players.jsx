@@ -125,8 +125,6 @@ export default Players = () => {
         </SafeAreaView>
       </ThemedView>
       <AddContactFormModal
-        animationType="slide"
-        transparent={true}
         visible={formState === "add-contacts"}
         handleClose={() => setFormState("")}
         onRequestClose={() => {
@@ -134,8 +132,6 @@ export default Players = () => {
         }}
       />
       <AddPlayerFormModal
-        animationType="slide"
-        transparent={true}
         visible={formState === "add"}
         handleClose={() => setFormState("")}
         onRequestClose={() => {
@@ -144,8 +140,6 @@ export default Players = () => {
       />
       <EditPlayerFormModal
         player={activeEditPlayer}
-        animationType="slide"
-        transparent={true}
         visible={formState === "edit"}
         handleClose={() => setFormState("")}
         onRequestClose={() => {

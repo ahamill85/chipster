@@ -1,58 +1,70 @@
 import {
   View,
   Modal,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
 } from "react-native";
 
 import { ThemedView } from "./ThemedView";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedText } from "./ThemedText";
 
-export default ThemedModal = ({ children, style, visible, ...rest }) => {
+export default ThemedModal = ({
+  children,
+  transparent = true,
+  animationType = "slide",
+  style,
+  visible,
+  backdropDismiss = () => {},
+  ...rest
+}) => {
   const insets = useSafeAreaInsets();
 
   return (
     <>
-      <Modal {...rest} visible={visible}>
+      <Modal
+        {...rest}
+        visible={visible}
+        transparent={transparent}
+        animationType={animationType}
+      >
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "rgba(0,0,0,0.3)",
-              justifyContent: "flex-end",
-              paddingTop: insets.top,
-            }}
-          >
-            <ThemedView
-              style={[
-                {
-                  padding: 20,
-                  paddingBottom: insets.bottom,
-                  borderTopLeftRadius: 20,
-                  borderTopRightRadius: 20,
-                  gap: 20,
-                  shadowColor: "#000",
-                  shadowOffset: {
-                    width: 0,
-                    height: 2,
-                  },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 4,
-                },
-                { ...style },
-              ]}
+          <Pressable style={{ flex: 1 }} onPress={backdropDismiss}>
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: "rgba(0,0,0,0.3)",
+                justifyContent: "flex-end",
+                paddingTop: insets.top,
+              }}
             >
-              {children}
-            </ThemedView>
-          </View>
+              <ThemedView
+                style={[
+                  {
+                    padding: 20,
+                    paddingBottom: insets.bottom,
+                    borderTopLeftRadius: 20,
+                    borderTopRightRadius: 20,
+                    gap: 20,
+                    shadowColor: "#000",
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 4,
+                  },
+                  { ...style },
+                ]}
+              >
+                <Pressable style={style}>{children}</Pressable>
+              </ThemedView>
+            </View>
+          </Pressable>
         </KeyboardAvoidingView>
       </Modal>
     </>
