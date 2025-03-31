@@ -31,7 +31,7 @@ export function ThemedButton({
       {...rest}
     >
       {icon}
-      <Text style={[{ color, ...textStyle }, style]}>{children}</Text>
+      <Text style={[{ color, ...textStyle }]}>{children}</Text>
     </TouchableOpacity>
   );
 }

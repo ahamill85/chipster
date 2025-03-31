@@ -2,15 +2,14 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { View, StyleSheet, Button, Pressable } from "react-native";
 import SetPlayers from "@/components/Players/Players";
-import SetChips from "@/components/SetChips";
 import Game from "@/components/Game/Game";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { useSelector } from "react-redux";
-import AddContactFormModal from "@/components/Players/AddContactFormModal";
 import Options from "../components/Options/Options";
+import { NavigationContainer } from "@react-navigation/native";
 
 // Screens
 const WelcomeScreen = ({ navigation }) => {
@@ -45,7 +44,7 @@ const WelcomeScreen = ({ navigation }) => {
             Start Game
           </ThemedButton>
           <ThemedButton onPress={() => navigation.navigate("players")}>
-            Add Players
+            {players.length ? `Edit Players (${players.length})` : "Add Players"}
           </ThemedButton>
           <ThemedButton onPress={() => navigation.navigate("options")}>
             Options
@@ -79,57 +78,59 @@ const App = () => {
   const players = useSelector((state) => state.players);
 
   return (
-    <Stack.Navigator
-      initialRouteName="welcome"
-      //screenOptions={{headerShown: false}}
-    >
-      <Stack.Screen
-        name="welcome"
-        component={WelcomeScreen}
-        options={{ headerShown: false, title: "Home" }}
-      />
-      <Stack.Screen
-        name="players"
-        component={SetPlayers}
-        options={({ navigation, route }) => ({
-          // headerRight: () => (
-          //   <ThemedButton
-          //     disabled={players.length < 2}
-          //     style={{
-          //       color: useThemeColor({}, "text"),
-          //       opacity: players.length < 2 ? 0.5 : 1,
-          //     }}
-          //     type="headerNav"
-          //     onPress={() => navigation.navigate("game")}
-          //   >
-          //     Start Game
-          //   </ThemedButton>
-          // ),
-          title: "Set Players",
-          presentation: "modal",
-          ...screenStyles,
-        })}
-      />
-      <Stack.Screen
-        name="options"
-        component={Options}
-        options={{
-          title: "Options",
-          presentation: "modal",
-          ...screenStyles,
-        }}
-      />
-      <Stack.Screen
-        name="game"
-        component={Game}
-        options={{
-          headerShown: false,
-          title: "Game",
-          gestureEnabled: false,
-          ...screenStyles,
-        }}
-      />
-    </Stack.Navigator>
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="welcome"
+        //screenOptions={{headerShown: false}}
+      >
+        <Stack.Screen
+          name="welcome"
+          component={WelcomeScreen}
+          options={{ headerShown: false, title: "Home" }}
+        />
+        <Stack.Screen
+          name="players"
+          component={SetPlayers}
+          options={({ navigation, route }) => ({
+            // headerRight: () => (
+            //   <ThemedButton
+            //     disabled={players.length < 2}
+            //     style={{
+            //       color: useThemeColor({}, "text"),
+            //       opacity: players.length < 2 ? 0.5 : 1,
+            //     }}
+            //     type="headerNav"
+            //     onPress={() => navigation.navigate("game")}
+            //   >
+            //     Start Game
+            //   </ThemedButton>
+            // ),
+            title: "Set Players",
+            presentation: "modal",
+            ...screenStyles,
+          })}
+        />
+        <Stack.Screen
+          name="options"
+          component={Options}
+          options={{
+            title: "Options",
+            presentation: "modal",
+            ...screenStyles,
+          }}
+        />
+        <Stack.Screen
+          name="game"
+          component={Game}
+          options={{
+            headerShown: false,
+            title: "Game",
+            gestureEnabled: false,
+            ...screenStyles,
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
 

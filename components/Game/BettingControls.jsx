@@ -52,6 +52,8 @@ export default BettingControls = ({
     return limit > activePlayerBalance ? activePlayerBalance : limit;
   };
 
+  console.log(limit())
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}

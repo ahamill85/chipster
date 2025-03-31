@@ -1,4 +1,13 @@
-import { ScrollView, StyleSheet, Switch, TextInput, View } from "react-native";
+import {
+  Linking,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
@@ -9,11 +18,12 @@ import {
   updateOptions,
   incrementOption,
 } from "../../features/slices/optionsSlice";
-import { FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesome, FontAwesome6 } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import ThemedModal from "../ThemedModal";
 import { TouchableOpacity } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const presets = [
   { label: "Custom", id: 0, value: {} },
@@ -30,18 +40,15 @@ const limits = [
 ];
 
 const IncrementControls = ({
-  onIncrement,
-  onDecrement,
   onChange,
   value,
   minValue,
   maxValue,
   style,
+  increment = 1,
   placeholder = "none",
   ...rest
 }) => {
-  const dispatch = useDispatch();
-
   return (
     <View
       style={[
@@ -56,7 +63,7 @@ const IncrementControls = ({
     >
       <ThemedButton
         type="circle"
-        onPress={onDecrement}
+        onPress={() => onChange(value - increment)}
         style={{ opacity: value === minValue ? 0.5 : 1 }}
         disabled={value === minValue}
       >
@@ -92,7 +99,7 @@ const IncrementControls = ({
       />
       <ThemedButton
         type="circle"
-        onPress={onIncrement}
+        onPress={() => onChange(value + increment)}
         style={{ opacity: value >= maxValue ? 0.5 : 1 }}
         disabled={value >= maxValue}
       >
@@ -103,6 +110,31 @@ const IncrementControls = ({
         />
       </ThemedButton>
     </View>
+  );
+};
+
+const OptionLabel = ({ url, children, ...rest }) => {
+  const handlePress = useCallback(async () => {
+    console.log(url);
+
+    // Checking if the link is supported for links with custom URL scheme.
+    const supported = await Linking.canOpenURL(url);
+
+    console.log(supported);
+
+    if (supported) {
+      // Opening the link with some app, if the URL scheme is "http" the web link should be opened
+      // by some browser in the mobile
+      await Linking.openURL(url);
+    } else {
+      Alert.alert(`Don't know how to open this URL: ${url}`);
+    }
+  }, [url]);
+
+  return (
+    <TouchableOpacity {...rest} onPress={handlePress}>
+      {children}
+    </TouchableOpacity>
   );
 };
 
@@ -128,9 +160,15 @@ export default ({ style, ...rest }) => {
   const rules = useThemeColor({}, "rules");
   const tint1 = useThemeColor({}, "tint1");
 
+  const safeArea = useSafeAreaInsets();
+
   return (
     <ThemedView style={[{ flex: 1 }, style]}>
-      <ScrollView stickyHeaderIndices={[0, 2]} style={{ flex: 1 }}>
+      <ScrollView
+        stickyHeaderIndices={[0, 2]}
+        style={{ flex: 1 }}
+        contentInsetAdjustmentBehavior="automatic"
+      >
         <ThemedView>
           <ThemedText style={styles.sectionTitle} type="subtitle">
             Betting
@@ -138,65 +176,52 @@ export default ({ style, ...rest }) => {
           <View style={[styles.horizontalRule, { backgroundColor: rules }]} />
         </ThemedView>
         <View>
-          {/* Presets */}
-          {/* <View style={styles.optionRow}>
-            <ThemedText style={styles.optionLabel}>Game Presets</ThemedText>
-            <ThemedButton
-              icon={
-                <FontAwesome6
-                  size={18}
-                  name="bars"
-                  style={{ color: switchActiveThumbColor }}
-                />
-              }
-              style={{ flex: 1, fontSize: 18, textAlign: "left" }}
-              onPress={() => setPresetModalVisibility(true)}
-            >
-              {selectedPreset.label}
-            </ThemedButton>
-            <ThemedModal
-              visible={presetModalVisibility}
-              backdropDismiss={() => setPresetModalVisibility(false)}
-            >
-              <Picker
-                itemStyle={{ color: text }}
-                selectedValue={selectedPresetId}
-                onValueChange={(id) => {
-                  setSelectedPresetId(id);
-                }}
-              >
-                {presets.map((preset, index) => {
-                  return (
-                    <Picker.Item
-                      key={preset.id}
-                      label={preset.label}
-                      value={preset.id}
-                    />
-                  );
-                })}
-              </Picker>
-            </ThemedModal>
-          </View>
-          <View style={[styles.horizontalRule, { backgroundColor: rules }]} /> */}
           {/* Limit */}
           <View style={styles.optionRow}>
-            <ThemedText style={styles.optionLabel}>Limit</ThemedText>
+            <OptionLabel
+              url="https://en.wikipedia.org/wiki/Betting_in_poker#Limits"
+              style={styles.optionLabel}
+            >
+              <ThemedText>Limit</ThemedText>
+              <FontAwesome
+                name="question-circle"
+                size={20}
+                style={{
+                  color: useThemeColor({}, "buttonBackground"),
+                }}
+              />
+            </OptionLabel>
+
             <ThemedButton
               icon={
                 <FontAwesome6
                   size={18}
                   name="bars"
-                  style={{ color: switchActiveThumbColor }}
+                  style={{
+                    color: switchActiveThumbColor,
+                    justifySelf: "start",
+                    flex: 0,
+                  }}
                 />
               }
-              style={{ flex: 1, fontSize: 18, textAlign: "left" }}
+              style={{
+                flex: 0,
+                width: 200,
+                fontSize: 18,
+                justifyContent: "stretch",
+                height: 50,
+              }}
               onPress={() => setLimitModalVisibility(true)}
+              type="small"
             >
-              {selectedLimit.label}
+              <Text style={{ textAlign: "center", flex: 1 }}>
+                {selectedLimit.label}
+              </Text>
             </ThemedButton>
             <ThemedModal
               visible={limitModalVisibility}
               backdropDismiss={() => setLimitModalVisibility(false)}
+              onDismiss={() => console.log("closed!")}
             >
               <Picker
                 itemStyle={{ color: text }}
@@ -218,66 +243,22 @@ export default ({ style, ...rest }) => {
             </ThemedModal>
           </View>
           <View style={[styles.horizontalRule, { backgroundColor: rules }]} />
-          {/* Betting Increments*/}
-          <View style={styles.optionRow}>
-            <ThemedText style={styles.optionLabel}>
-              Betting Increments
-            </ThemedText>
-            <IncrementControls
-              onIncrement={() => {
-                dispatch(incrementOption({ key: "increment", value: 1 }));
-
-                const newIncrement = options.increment + 1;
-                const smallBlind =
-                  Math.ceil(options.smallBlind / newIncrement) * newIncrement;
-
-                dispatch(
-                  updateOptions({
-                    ante: Math.ceil(options.ante / newIncrement) * newIncrement,
-                    smallBlind,
-                    bigBlind: smallBlind * 2,
-                  })
-                );
-              }}
-              onDecrement={() => {
-                dispatch(incrementOption({ key: "increment", value: -1 }));
-
-                const newIncrement = options.increment - 1;
-                const smallBlind =
-                  Math.floor(options.smallBlind / newIncrement) * newIncrement;
-
-                dispatch(
-                  updateOptions({
-                    ante:
-                      Math.floor(options.ante / newIncrement) * newIncrement,
-                    smallBlind,
-                    bigBlind: smallBlind * 2,
-                  })
-                );
-              }}
-              onChange={(value) => {
-                dispatch(updateOptions({ increment: value }));
-              }}
-              value={options.increment}
-              minValue={1}
-              maxValue={20}
-            />
-          </View>
-          <View style={[styles.horizontalRule, { backgroundColor: rules }]} />
           {/* Ante */}
           <View style={styles.optionRow}>
-            <ThemedText style={styles.optionLabel}>Ante</ThemedText>
+            <OptionLabel
+              url="https://en.wikipedia.org/wiki/Betting_in_poker#Ante"
+              style={styles.optionLabel}
+            >
+              <ThemedText>Ante</ThemedText>
+              <FontAwesome
+                name="question-circle"
+                size={20}
+                style={{
+                  color: useThemeColor({}, "buttonBackground"),
+                }}
+              />
+            </OptionLabel>
             <IncrementControls
-              onIncrement={() =>
-                dispatch(
-                  incrementOption({ key: "ante", value: options.increment })
-                )
-              }
-              onDecrement={() =>
-                dispatch(
-                  incrementOption({ key: "ante", value: -options.increment })
-                )
-              }
               onChange={(value) => {
                 dispatch(updateOptions({ ante: value }));
               }}
@@ -289,24 +270,20 @@ export default ({ style, ...rest }) => {
           <View style={[styles.horizontalRule, { backgroundColor: rules }]} />
           {/* Small Blind */}
           <View style={styles.optionRow}>
-            <ThemedText style={styles.optionLabel}>Small Blind</ThemedText>
+            <OptionLabel
+              url="https://en.wikipedia.org/wiki/Betting_in_poker#Blinds"
+              style={styles.optionLabel}
+            >
+              <ThemedText>Small Blind</ThemedText>
+              <FontAwesome
+                name="question-circle"
+                size={20}
+                style={{
+                  color: useThemeColor({}, "buttonBackground"),
+                }}
+              />
+            </OptionLabel>
             <IncrementControls
-              onIncrement={() =>
-                dispatch(
-                  incrementOption({
-                    key: "smallBlind",
-                    value: options.increment,
-                  })
-                )
-              }
-              onDecrement={() =>
-                dispatch(
-                  incrementOption({
-                    key: "smallBlind",
-                    value: -options.increment,
-                  })
-                )
-              }
               onChange={(value) => {
                 dispatch(updateOptions({ smallBlind: value }));
               }}
@@ -318,21 +295,20 @@ export default ({ style, ...rest }) => {
           <View style={[styles.horizontalRule, { backgroundColor: rules }]} />
           {/* Big Blind */}
           <View style={styles.optionRow}>
-            <ThemedText style={styles.optionLabel}>Big Blind</ThemedText>
+            <OptionLabel
+              url="https://en.wikipedia.org/wiki/Betting_in_poker#Blinds"
+              style={styles.optionLabel}
+            >
+              <ThemedText>Big Blind</ThemedText>
+              <FontAwesome
+                name="question-circle"
+                size={20}
+                style={{
+                  color: useThemeColor({}, "buttonBackground"),
+                }}
+              />
+            </OptionLabel>
             <IncrementControls
-              onIncrement={() =>
-                dispatch(
-                  incrementOption({ key: "bigBlind", value: options.increment })
-                )
-              }
-              onDecrement={() =>
-                dispatch(
-                  incrementOption({
-                    key: "bigBlind",
-                    value: -options.increment,
-                  })
-                )
-              }
               onChange={(value) => {
                 dispatch(updateOptions({ bigBlind: value }));
               }}
@@ -346,22 +322,6 @@ export default ({ style, ...rest }) => {
           <View style={styles.optionRow}>
             <ThemedText style={styles.optionLabel}>Starting Balance</ThemedText>
             <IncrementControls
-              onIncrement={() =>
-                dispatch(
-                  incrementOption({
-                    key: "startingBalance",
-                    value: options.increment,
-                  })
-                )
-              }
-              onDecrement={() =>
-                dispatch(
-                  incrementOption({
-                    key: "startingBalance",
-                    value: -options.increment,
-                  })
-                )
-              }
               onChange={(value) => {
                 dispatch(updateOptions({ startingBalance: value }));
               }}
@@ -434,12 +394,6 @@ export default ({ style, ...rest }) => {
           <View style={styles.optionRow}>
             <ThemedText style={styles.optionLabel}>Maximum Reraises</ThemedText>
             <IncrementControls
-              onIncrement={() =>
-                dispatch(incrementOption({ key: "maxReraise", value: 1 }))
-              }
-              onDecrement={() =>
-                dispatch(incrementOption({ key: "maxReraise", value: -1 }))
-              }
               onChange={(value) => {
                 dispatch(updateOptions({ maxReraise: value }));
               }}
@@ -453,12 +407,6 @@ export default ({ style, ...rest }) => {
           <View style={styles.optionRow}>
             <ThemedText style={styles.optionLabel}>Maximum Rounds</ThemedText>
             <IncrementControls
-              onIncrement={() =>
-                dispatch(incrementOption({ key: "maxRounds", value: 1 }))
-              }
-              onDecrement={() =>
-                dispatch(incrementOption({ key: "maxRounds", value: -1 }))
-              }
               onChange={(value) => {
                 dispatch(updateOptions({ maxRounds: value }));
               }}
@@ -469,6 +417,7 @@ export default ({ style, ...rest }) => {
           </View>
           <View style={[styles.horizontalRule, { backgroundColor: rules }]} />
         </View>
+        {/* <View style={{height: safeArea.bottom}} /> */}
       </ScrollView>
     </ThemedView>
   );
@@ -478,7 +427,7 @@ const styles = StyleSheet.create({
   optionRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 20,
+    gap: 0,
     justifyContent: "space-between",
     height: 80,
     paddingHorizontal: 20,
@@ -488,6 +437,9 @@ const styles = StyleSheet.create({
   },
   optionLabel: {
     flex: 1,
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
   },
   sectionTitle: {
     paddingTop: 20,

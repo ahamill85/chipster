@@ -7,16 +7,16 @@ const initialState = {
   gameState: null,
   //betting vars
   ante: 0,
-  smallBlind: 0,
-  bigBlind: 0,
+  smallBlind: 1,
+  bigBlind: 2,
   increment: 1,
   minBet: 0,
   startingBalance: 100,
   limitType: "none",
   //dealer vars
-  rotatingDealer: false,
+  playerDealer: true,
+  rotatingDealer: true,
   startingDealer: 0,
-  playerDealer: false,
 };
 
 export const optionsSlice = createSlice({
