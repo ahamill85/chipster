@@ -20,7 +20,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.READ_CONTACTS",
+        "android.permission.WRITE_CONTACTS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_CONTACTS",
+        "android.permission.WRITE_CONTACTS",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.anonymous.Chipster"
     },
     "web": {
       "bundler": "metro",
@@ -54,6 +63,7 @@
         "projectId": "3a157b59-03ee-484d-9b86-051e99c0b3b9"
       }
     },
-    "owner": "ahamill85"
+    "owner": "ahamill85",
+    "newArchEnabled": true
   }
 }
