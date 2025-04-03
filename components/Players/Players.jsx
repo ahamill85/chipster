@@ -13,10 +13,10 @@ import DraggableFlatList from "react-native-draggable-flatlist";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedButton } from "@/components/ThemedButton";
 
-import { FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import AddContactFormModal from "./AddContactFormModal";
-import { FadeInUp, FadeOutUp, LinearTransition } from "react-native-reanimated";
+import { LinearTransition } from "react-native-reanimated";
 
 export default Players = () => {
   const players = useSelector((state) => state.players);
@@ -68,9 +68,9 @@ export default Players = () => {
               }}
               onDragEnd={({ data }) => dispatch(reorderPlayers(data))}
               ref={listElement}
-              onContentSizeChange={() =>
-                listElement.current.scrollToEnd({ animated: true })
-              }
+              onContentSizeChange={() => {
+                listElement.current.scrollToEnd({ animated: true });
+              }}
               style={{ flex: 1 }}
               containerStyle={{ flex: 1 }}
               contentContainerStyle={{ flexGrow: 1 }}
@@ -99,26 +99,26 @@ export default Players = () => {
               <ThemedButton
                 onPress={() => setFormState("add")}
                 icon={
-                  <FontAwesome6
-                    name="plus"
-                    size="24"
+                  <MaterialCommunityIcons
+                    name="account-plus"
+                    size="30"
                     color={useThemeColor({}, "buttonText")}
                   />
                 }
               >
-                Add New Player
+                Create Player
               </ThemedButton>
               <ThemedButton
                 onPress={() => setFormState("add-contacts")}
                 icon={
                   <FontAwesome6
-                    name="plus"
-                    size="24"
+                    name="contact-book"
+                    size="30"
                     color={useThemeColor({}, "buttonText")}
                   />
                 }
               >
-                Add Player from Contacts
+                Add Players from Contacts
               </ThemedButton>
             </View>
           </View>

@@ -13,6 +13,7 @@ const VerticalRule = () => (
 );
 
 export default Stats = ({currentHand, currentRound, potAmount}) => {
+
   return (
     <View
       style={{
@@ -30,7 +31,7 @@ export default Stats = ({currentHand, currentRound, potAmount}) => {
       >
         <ThemedText
           style={{
-            fontSize: 80,
+            fontSize: 40,
             lineHeight: 80,
           }}
         >
@@ -66,11 +67,11 @@ export default Stats = ({currentHand, currentRound, potAmount}) => {
       >
         <ThemedText
           style={{
-            fontSize: 80,
+            fontSize: 40,
             lineHeight: 80,
           }}
         >
-          {currentHand}
+          {currentHand + 1}
         </ThemedText>
         <ThemedText>Hand</ThemedText>
       </View>

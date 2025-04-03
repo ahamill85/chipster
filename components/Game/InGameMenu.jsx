@@ -6,7 +6,16 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
 import { ThemedView } from "../ThemedView";
 
-export default InGameMenu = ({ navigation, handleDismiss, handleReset, ...rest }) => {
+export default InGameMenu = ({
+  navigation,
+  handleDismiss,
+  handleUndo,
+  handleRedo,
+  handleReset,
+  disableUndo,
+  disableRedo,
+  ...rest
+}) => {
   return (
     <ThemedModal {...rest}>
       <View
@@ -14,6 +23,7 @@ export default InGameMenu = ({ navigation, handleDismiss, handleReset, ...rest }
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
+          paddingBottom: 30,
         }}
       >
         <ThemedText type="subtitle">Options</ThemedText>
@@ -26,25 +36,49 @@ export default InGameMenu = ({ navigation, handleDismiss, handleReset, ...rest }
         </TouchableOpacity>
       </View>
       <ThemedView style={{ gap: 20 }}>
+        <View style={{ flexDirection: "row", gap: 20 }}>
+          <ThemedButton
+            disabled={disableUndo}
+            icon={
+              <FontAwesome6
+                name="arrow-rotate-left"
+                size={22}
+                style={{ color: useThemeColor({}, "buttonText") }}
+              />
+            }
+            onPress={handleUndo}
+            style={{ opacity: disableUndo ? 0.5 : 1, flex: 1 }}
+          >
+            Undo Hand
+          </ThemedButton>
+          <ThemedButton
+            disabled={disableRedo}
+            icon={
+              <FontAwesome6
+                name="arrow-rotate-right"
+                size={22}
+                style={{ color: useThemeColor({}, "buttonText") }}
+              />
+            }
+            iconPosition="right"
+            onPress={handleRedo}
+            style={{ opacity: disableRedo ? 0.5 : 1, flex: 1 }}
+          >
+            Redo Hand
+          </ThemedButton>
+        </View>
         <ThemedButton
-          icon={
-            <FontAwesome6
-              name="arrow-rotate-left"
-              size={22}
-              style={{ color: useThemeColor({}, "buttonText") }}
-            />
-          }
           onPress={handleReset}
         >
-          Reset Current Hand
+          Reset Game
         </ThemedButton>
         <ThemedButton
           onPress={() => {
             handleDismiss();
-            navigation.navigate("options");
+            navigation.navigate("options", { inGame: true });
           }}
         >
-          Update Options
+          Change Rules
         </ThemedButton>
         <ThemedButton
           type="danger"

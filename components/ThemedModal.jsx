@@ -13,7 +13,7 @@ import { ThemedText } from "./ThemedText";
 export default ThemedModal = ({
   children,
   transparent = true,
-  animationType = "slide",
+  animationType = "fade",
   style,
   visible,
   backdropDismiss = () => {},
@@ -38,17 +38,17 @@ export default ThemedModal = ({
               style={{
                 flex: 1,
                 backgroundColor: "rgba(0,0,0,0.3)",
-                justifyContent: "flex-end",
-                paddingTop: insets.top,
+                justifyContent: "center",
+                alignItems: "center",
+                paddingTop: insets.top + 20,
+                paddingBottom: insets.bottom + 20,
               }}
             >
               <ThemedView
                 style={[
                   {
                     padding: 20,
-                    paddingBottom: insets.bottom,
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
+                    borderRadius: 20,
                     gap: 20,
                     shadowColor: "#000",
                     shadowOffset: {
@@ -57,6 +57,8 @@ export default ThemedModal = ({
                     },
                     shadowOpacity: 0.25,
                     shadowRadius: 4,
+                    maxWidth: 600,
+                    width: "100%",
                   },
                   { ...style },
                 ]}

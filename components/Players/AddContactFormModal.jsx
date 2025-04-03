@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { StyleSheet, View, TouchableOpacity, FlatList, Pressable } from "react-native";
+import { StyleSheet, View, FlatList, Pressable } from "react-native";
 import { ThemedButton } from "../ThemedButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useDispatch, useSelector } from "react-redux";
@@ -75,9 +75,6 @@ export default AddContactFormModal = ({ handleClose, ...rest }) => {
 
   const dispatch = useDispatch();
 
-  const buttonBackground = useThemeColor({}, "buttonBackground");
-  const buttonText = useThemeColor({}, "buttonText");
-
   const handleAdd = () => {
     dispatch(addPlayers(selectedContacts));
     setSelectedContacts([]);
@@ -107,7 +104,6 @@ export default AddContactFormModal = ({ handleClose, ...rest }) => {
 
         if (contacts.length > 0) {
           setUsersContacts(contacts);
-          //setSelectedContacts(contacts.slice(0, 10));
         }
       }
     })();
@@ -125,7 +121,7 @@ export default AddContactFormModal = ({ handleClose, ...rest }) => {
             autoFocus={true}
           />
         </View>
-        <View style={{ flexGrow: 0, flexShrink: 1, flexBasis: "auto" }}>
+        <View style={{ flexGrow: 1, flexShrink: 1, flexBasis: "auto" }}>
           <FlatList
             data={filteredContacts}
             ItemSeparatorComponent={() => (

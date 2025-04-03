@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
+import { View } from "react-native";
 
 import { ThemedText } from "../ThemedText";
 
 import { ThemedButton } from "../ThemedButton";
 import { TextInput } from "react-native-gesture-handler";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
@@ -26,8 +25,6 @@ export default BettingControls = ({
   );
 
   const [betAmount, setBetAmount] = useState(null);
-
-  const headerHeight = useHeaderHeight();
 
   const BetText = (betAmount, callAmount) => {
     if (betAmount === callAmount) return "call";
@@ -52,19 +49,18 @@ export default BettingControls = ({
     return limit > activePlayerBalance ? activePlayerBalance : limit;
   };
 
-  console.log(limit())
+  const handleBetButtons = (params) => {
+    handleBet(params)
+    setBetAmount(callAmount);
+  }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={headerHeight + 40}
-      {...rest}
-    >
+    <>
       <View
         style={{
           padding: 20,
           gap: 20,
-          opacity: promptWinnerSelection ? 0.2 : 1,
+          opacity: promptWinnerSelection ? 0 : 1,
         }}
       >
         <View
@@ -162,7 +158,7 @@ export default BettingControls = ({
                     ? 0.5
                     : 1,
               }}
-              onPress={() => handleBet("bet", betAmount)}
+              onPress={() => handleBetButtons({type: "bet", amount: betAmount})}
               disabled={betAmount < callAmount || (!callAmount && !betAmount)}
             >
               {BetText(betAmount, callAmount).toUpperCase()}
@@ -175,7 +171,7 @@ export default BettingControls = ({
                 style={{
                   flex: 1,
                 }}
-                onPress={() => handleBet("fold", 0)}
+                onPress={() => handleBetButtons({type: "fold", amount: 0})}
               >
                 FOLD
               </ThemedButton>
@@ -186,7 +182,7 @@ export default BettingControls = ({
                   flex: 1,
                   opacity: betAmount > callAmount ? 0.5 : 1,
                 }}
-                onPress={() => handleBet("check", betAmount)}
+                onPress={() => handleBetButtons({type: "check", amount: betAmount})}
               >
                 CHECK
               </ThemedButton>
@@ -213,6 +209,6 @@ export default BettingControls = ({
           </ThemedText>
         </View>
       )}
-    </KeyboardAvoidingView>
+    </>
   );
 };

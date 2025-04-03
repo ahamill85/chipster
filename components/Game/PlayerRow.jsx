@@ -30,8 +30,8 @@ export default PlayerRow = ({
   const currentBet = bets.reduce((round, total) => total + round, 0);
 
   const rowOpacity = () => {
-    if (status === "fold") return 0.6;
-    if (status === "out") return 0.2;
+    if (status === "fold") return 0.4;
+    if (status === "out") return 0.1;
     return 1;
   };
 

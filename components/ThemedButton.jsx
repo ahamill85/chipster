@@ -10,6 +10,7 @@ export function ThemedButton({
   theme = "primary",
   type = "default",
   icon,
+  iconPosition = "left",
   ...rest
 }) {
   const backgroundColor = useThemeColor(
@@ -30,8 +31,9 @@ export function ThemedButton({
       style={[{ backgroundColor, ...buttonStyle }, style]}
       {...rest}
     >
-      {icon}
+      {iconPosition === "left" && icon}
       <Text style={[{ color, ...textStyle }]}>{children}</Text>
+      {iconPosition === "right" && icon}
     </TouchableOpacity>
   );
 }

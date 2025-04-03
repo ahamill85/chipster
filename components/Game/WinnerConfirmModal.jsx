@@ -1,9 +1,10 @@
 import React from "react";
-import { View } from "react-native";
+import { KeyboardAvoidingView, Platform, View } from "react-native";
 
 import { ThemedText } from "../ThemedText";
 import { ThemedButton } from "../ThemedButton";
 import ThemedModal from "../ThemedModal";
+import { useHeaderHeight } from "@react-navigation/elements";
 
 export default WinnerConfirmModal = ({
   player,
@@ -11,15 +12,21 @@ export default WinnerConfirmModal = ({
   handleConfirm,
   ...rest
 }) => {
+
+    const headerHeight = useHeaderHeight();
+  
+
   return (
     <ThemedModal {...rest}>
-      <View style={{gap: 20}}>
-        <ThemedText type="subtitle">{`Did ${player?.name} win this hand?`}</ThemedText>
-        <View style={{ flexDirection: "row", gap: 10 }}>
-          <ThemedButton type="danger" style={{flex: 1}} onPress={handleCancel}>Cancel</ThemedButton>
-          <ThemedButton style={{flex: 1}} onPress={handleConfirm}>Confirm</ThemedButton>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={headerHeight + 40}>
+        <View style={{gap: 20}}>
+          <ThemedText type="subtitle" style={{textAlign: "center"}}>{`Confirm ${player?.name} won the the hand.`}</ThemedText>
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            <ThemedButton type="danger" style={{flex: 1}} onPress={handleCancel}>Cancel</ThemedButton>
+            <ThemedButton style={{flex: 1}} onPress={handleConfirm}>Confirm</ThemedButton>
+          </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </ThemedModal>
   );
 };

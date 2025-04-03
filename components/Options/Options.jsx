@@ -138,10 +138,14 @@ const OptionLabel = ({ url, children, ...rest }) => {
   );
 };
 
-export default ({ style, ...rest }) => {
+export default ({ route, style, ...rest }) => {
   const options = useSelector((state) => state.options);
 
   const dispatch = useDispatch();
+
+  const { inGame = false } = route.params;
+
+  console.log(inGame);
 
   const [selectedPresetId, setSelectedPresetId] = useState(`${presets[0].id}`);
   const [presetModalVisibility, setPresetModalVisibility] = useState(false);
@@ -177,71 +181,73 @@ export default ({ style, ...rest }) => {
         </ThemedView>
         <View>
           {/* Limit */}
-          <View style={styles.optionRow}>
-            <OptionLabel
-              url="https://en.wikipedia.org/wiki/Betting_in_poker#Limits"
-              style={styles.optionLabel}
-            >
-              <ThemedText>Limit</ThemedText>
-              <FontAwesome
-                name="question-circle"
-                size={20}
-                style={{
-                  color: useThemeColor({}, "buttonBackground"),
-                }}
-              />
-            </OptionLabel>
-
-            <ThemedButton
-              icon={
-                <FontAwesome6
-                  size={18}
-                  name="bars"
+          {!inGame && (
+            <View style={styles.optionRow}>
+              <OptionLabel
+                url="https://en.wikipedia.org/wiki/Betting_in_poker#Limits"
+                style={styles.optionLabel}
+              >
+                <ThemedText>Limit</ThemedText>
+                <FontAwesome
+                  name="question-circle"
+                  size={20}
                   style={{
-                    color: switchActiveThumbColor,
-                    justifySelf: "start",
-                    flex: 0,
+                    color: useThemeColor({}, "buttonBackground"),
                   }}
                 />
-              }
-              style={{
-                flex: 0,
-                width: 200,
-                fontSize: 18,
-                justifyContent: "stretch",
-                height: 50,
-              }}
-              onPress={() => setLimitModalVisibility(true)}
-              type="small"
-            >
-              <Text style={{ textAlign: "center", flex: 1 }}>
-                {selectedLimit.label}
-              </Text>
-            </ThemedButton>
-            <ThemedModal
-              visible={limitModalVisibility}
-              backdropDismiss={() => setLimitModalVisibility(false)}
-              onDismiss={() => console.log("closed!")}
-            >
-              <Picker
-                itemStyle={{ color: text }}
-                selectedValue={options.limitType}
-                onValueChange={(value) => {
-                  dispatch(updateOptions({ limitType: value }));
+              </OptionLabel>
+
+              <ThemedButton
+                icon={
+                  <FontAwesome6
+                    size={18}
+                    name="bars"
+                    style={{
+                      color: switchActiveThumbColor,
+                      justifySelf: "start",
+                      flex: 0,
+                    }}
+                  />
+                }
+                style={{
+                  flex: 0,
+                  width: 200,
+                  fontSize: 18,
+                  justifyContent: "stretch",
+                  height: 50,
                 }}
+                onPress={() => setLimitModalVisibility(true)}
+                type="small"
               >
-                {limits.map((limit) => {
-                  return (
-                    <Picker.Item
-                      key={limit.id}
-                      label={limit.label}
-                      value={limit.value}
-                    />
-                  );
-                })}
-              </Picker>
-            </ThemedModal>
-          </View>
+                <Text style={{ textAlign: "center", flex: 1 }}>
+                  {selectedLimit.label}
+                </Text>
+              </ThemedButton>
+              <ThemedModal
+                visible={limitModalVisibility}
+                backdropDismiss={() => setLimitModalVisibility(false)}
+                onDismiss={() => console.log("closed!")}
+              >
+                <Picker
+                  itemStyle={{ color: text }}
+                  selectedValue={options.limitType}
+                  onValueChange={(value) => {
+                    dispatch(updateOptions({ limitType: value }));
+                  }}
+                >
+                  {limits.map((limit) => {
+                    return (
+                      <Picker.Item
+                        key={limit.id}
+                        label={limit.label}
+                        value={limit.value}
+                      />
+                    );
+                  })}
+                </Picker>
+              </ThemedModal>
+            </View>
+          )}
           <View style={[styles.horizontalRule, { backgroundColor: rules }]} />
           {/* Ante */}
           <View style={styles.optionRow}>
@@ -319,17 +325,21 @@ export default ({ style, ...rest }) => {
           </View>
           <View style={[styles.horizontalRule, { backgroundColor: rules }]} />
           {/* Starting Balance */}
-          <View style={styles.optionRow}>
-            <ThemedText style={styles.optionLabel}>Starting Balance</ThemedText>
-            <IncrementControls
-              onChange={(value) => {
-                dispatch(updateOptions({ startingBalance: value }));
-              }}
-              value={options.startingBalance}
-              minValue={0}
-              maxValue={1000}
-            />
-          </View>
+          {!inGame && (
+            <View style={styles.optionRow}>
+              <ThemedText style={styles.optionLabel}>
+                Starting Balance
+              </ThemedText>
+              <IncrementControls
+                onChange={(value) => {
+                  dispatch(updateOptions({ startingBalance: value }));
+                }}
+                value={options.startingBalance}
+                minValue={0}
+                maxValue={1000}
+              />
+            </View>
+          )}
         </View>
         <ThemedView>
           <ThemedText style={styles.sectionTitle} type="subtitle">
