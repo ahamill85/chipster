@@ -172,7 +172,9 @@ expo build:android
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under a custom Educational and Attribution License - see the [LICENSE.md](LICENSE.md) file for details.
+
+**Summary**: This software may be used for educational purposes and personal learning with proper attribution to the original author. Commercial use, redistribution, and public hosting require explicit permission.
 
 ## Acknowledgments
 
