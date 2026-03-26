@@ -5,6 +5,7 @@ import { ThemedButton } from "../ThemedButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
 import { ThemedView } from "../ThemedView";
+import { useEffect } from "react";
 
 export default InGameMenu = ({
   navigation,
@@ -14,8 +15,11 @@ export default InGameMenu = ({
   handleReset,
   disableUndo,
   disableRedo,
+  disableReset,
+  activeHand,
   ...rest
 }) => {
+
   return (
     <ThemedModal {...rest}>
       <View
@@ -69,16 +73,30 @@ export default InGameMenu = ({
         </View>
         <ThemedButton
           onPress={handleReset}
+          disableReset={disableReset}
+          style={{ opacity: disableReset ? 0.5 : 1 }}
         >
           Reset Game
         </ThemedButton>
         <ThemedButton
+          disabled={activeHand}
+          style={{ opacity: activeHand ? 0.5 : 1 }}
           onPress={() => {
             handleDismiss();
             navigation.navigate("options", { inGame: true });
           }}
         >
-          Change Rules
+          Edit Rules
+        </ThemedButton>
+        <ThemedButton
+          disabled={activeHand}
+          style={{ opacity: activeHand ? 0.5 : 1 }}
+          onPress={() => {
+            handleDismiss();
+            navigation.navigate("players", { inGame: true });
+          }}
+        >
+          Edit Players
         </ThemedButton>
         <ThemedButton
           type="danger"

@@ -115,12 +115,8 @@ const IncrementControls = ({
 
 const OptionLabel = ({ url, children, ...rest }) => {
   const handlePress = useCallback(async () => {
-    console.log(url);
-
     // Checking if the link is supported for links with custom URL scheme.
     const supported = await Linking.canOpenURL(url);
-
-    console.log(supported);
 
     if (supported) {
       // Opening the link with some app, if the URL scheme is "http" the web link should be opened
@@ -144,8 +140,6 @@ export default ({ route, style, ...rest }) => {
   const dispatch = useDispatch();
 
   const { inGame = false } = route.params;
-
-  console.log(inGame);
 
   const [selectedPresetId, setSelectedPresetId] = useState(`${presets[0].id}`);
   const [presetModalVisibility, setPresetModalVisibility] = useState(false);
@@ -226,7 +220,6 @@ export default ({ route, style, ...rest }) => {
               <ThemedModal
                 visible={limitModalVisibility}
                 backdropDismiss={() => setLimitModalVisibility(false)}
-                onDismiss={() => console.log("closed!")}
               >
                 <Picker
                   itemStyle={{ color: text }}

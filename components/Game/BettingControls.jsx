@@ -60,7 +60,6 @@ export default BettingControls = ({
         style={{
           padding: 20,
           gap: 20,
-          opacity: promptWinnerSelection ? 0 : 1,
         }}
       >
         <View
@@ -190,25 +189,6 @@ export default BettingControls = ({
           </View>
         </View>
       </View>
-      {promptWinnerSelection && (
-        <View
-          style={{
-            position: "absolute",
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <ThemedText
-            style={{ fontSize: 40, lineHeight: 40, textAlign: "center" }}
-          >
-            Select Winner
-          </ThemedText>
-        </View>
-      )}
     </>
   );
 };

@@ -8,12 +8,11 @@ import {
 
 import { ThemedView } from "./ThemedView";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ThemedText } from "./ThemedText";
 
 export default ThemedModal = ({
   children,
   transparent = true,
-  animationType = "fade",
+  animationType = "slide",
   style,
   visible,
   backdropDismiss = () => {},
@@ -42,6 +41,8 @@ export default ThemedModal = ({
                 alignItems: "center",
                 paddingTop: insets.top + 20,
                 paddingBottom: insets.bottom + 20,
+                paddingLeft: 20,
+                paddingRight: 20,
               }}
             >
               <ThemedView

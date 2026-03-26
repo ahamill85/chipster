@@ -54,6 +54,8 @@ export default PlayerRow = ({
 
   if (disabled && promptWinner) return <></>;
 
+  //console.log(name, '---', status);
+
   return (
     <>
       <TouchableOpacity
@@ -108,14 +110,13 @@ export default PlayerRow = ({
           </View>
         </Animated.View>
       </TouchableOpacity>
-      {!isLast && (
-        <View
-          style={{
-            height: StyleSheet.hairlineWidth,
-            backgroundColor: rules,
-          }}
-        />
-      )}
+      <View
+        style={{
+          height: StyleSheet.hairlineWidth,
+          backgroundColor: rules,
+          opacity: isLast || promptWinner ? 0 : 1,
+        }}
+      />
     </>
   );
 };

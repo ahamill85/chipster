@@ -1,9 +1,9 @@
-import React, { useRef, useState } from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
+import React, { memo, useRef, useState } from "react";
+import { Pressable, SafeAreaView, StyleSheet, View } from "react-native";
 
 import { ThemedView } from "../ThemedView";
 
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { removePlayer, reorderPlayers } from "@/features/slices/playersSlice";
 import AddPlayerFormModal from "./AddPlayerFormModal";
 import EditPlayerFormModal from "./EditPlayerFormModal";
@@ -17,9 +17,10 @@ import { FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import AddContactFormModal from "./AddContactFormModal";
 import { LinearTransition } from "react-native-reanimated";
+import ReorderableList, { reorderItems } from "react-native-reorderable-list";
 
 export default Players = () => {
-  const players = useSelector((state) => state.players);
+  const players = useSelector((state) => state.players, shallowEqual);
 
   const dispatch = useDispatch();
 
@@ -37,14 +38,15 @@ export default Players = () => {
     setFormState("edit");
   };
 
+  const [testState, setTestState] = useState(players);  
+
   return (
     <>
       <ThemedView style={{ flex: 1 }}>
         <SafeAreaView style={{ flex: 1 }}>
           <View style={{ flex: 1 }}>
-            <DraggableFlatList
+            <ReorderableList
               data={players}
-              extraData={players}
               ItemSeparatorComponent={({ highlighted }) => (
                 <View
                   style={{
@@ -54,8 +56,6 @@ export default Players = () => {
                 />
               )}
               itemLayoutAnimation={LinearTransition}
-              //itemEnteringAnimation={FadeInUp}
-              //itemExitingAnimation={FadeOutUp}
               renderItem={(params) => (
                 <PlayerRow
                   {...params}
@@ -63,10 +63,10 @@ export default Players = () => {
                   editCallback={editPlayer}
                 />
               )}
-              keyExtractor={(item) => {
-                return item.id.toString();
+              keyExtractor={(item) => item.id}
+              onReorder={({from, to}) => {
+                dispatch(reorderPlayers(reorderItems(players, from, to)))
               }}
-              onDragEnd={({ data }) => dispatch(reorderPlayers(data))}
               ref={listElement}
               onContentSizeChange={() => {
                 listElement.current.scrollToEnd({ animated: true });
@@ -74,7 +74,6 @@ export default Players = () => {
               style={{ flex: 1 }}
               containerStyle={{ flex: 1 }}
               contentContainerStyle={{ flexGrow: 1 }}
-              activationDistance={20}
               ListEmptyComponent={() => (
                 <View
                   style={{
@@ -94,6 +93,7 @@ export default Players = () => {
                 alignItems: "center",
                 height: 500,
               }}
+              //shouldUpdateActiveItem={true}
             />
             <View style={{ padding: 20, gap: 10 }}>
               <ThemedButton
@@ -138,14 +138,16 @@ export default Players = () => {
           setFormState("");
         }}
       />
-      <EditPlayerFormModal
-        player={activeEditPlayer}
-        visible={formState === "edit"}
-        handleClose={() => setFormState("")}
-        onRequestClose={() => {
-          setFormState("");
-        }}
-      />
+      {activeEditPlayer && (
+        <EditPlayerFormModal
+          player={activeEditPlayer}
+          visible={formState === "edit"}
+          handleClose={() => setFormState("")}
+          onRequestClose={() => {
+            setFormState("");
+          }}
+        />
+      )}
     </>
   );
 };

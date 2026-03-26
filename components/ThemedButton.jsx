@@ -43,9 +43,10 @@ const buttonBase = {
   flexDirection: "row",
   alignItems: "center",
   justifyContent: "center",
-  height: 60,
+  minHeight: 60,
   gap: 10,
   paddingHorizontal: 20,
+  paddingVertical: 10,
 };
 
 const textBase = {
@@ -62,7 +63,7 @@ const button = StyleSheet.create({
   },
   small: {
     ...buttonBase,
-    height: 30,
+    minHeight: 30,
   },
   headerNav: {
     ...buttonBase,

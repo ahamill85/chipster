@@ -11,6 +11,7 @@ import SwipeableItem, {
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
 import Avatar from "../Avatar";
+import { useReorderableDrag } from "react-native-reorderable-list";
 
 const QuickActions = ({ player, editItem, deleteItem }) => {
   const { close } = useSwipeableItemParams();
@@ -76,16 +77,16 @@ const QuickActions = ({ player, editItem, deleteItem }) => {
 
 export default PlayerRow = ({
   item,
-  drag,
+  // drag,
   isActive,
   editCallback,
   deleteCallback,
 }) => {
-  const buttonText = useThemeColor({}, "buttonText");
+
+  const drag = useReorderableDrag();
 
   return (
     <SwipeableItem
-      //style={{ flex: 1 }}
       renderUnderlayLeft={() => (
         <QuickActions
           player={item}
@@ -95,8 +96,7 @@ export default PlayerRow = ({
       )}
       snapPointsLeft={[200]}
     >
-      <ScaleDecorator>
-        <ShadowDecorator>
+
           <Pressable onLongPress={drag} disabled={isActive}>
             <ThemedView
               style={{
@@ -117,10 +117,7 @@ export default PlayerRow = ({
                 <ThemedText type="default">{item.name}</ThemedText>
               </ThemedView>
             </ThemedView>
-            
           </Pressable>
-        </ShadowDecorator>
-      </ScaleDecorator>
     </SwipeableItem>
   );
 };

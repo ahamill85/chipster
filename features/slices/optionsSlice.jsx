@@ -4,7 +4,6 @@ const initialState = {
   //game vars
   maxReraise: 1,
   maxRounds: 4,
-  gameState: null,
   //betting vars
   ante: 0,
   smallBlind: 1,

@@ -13,8 +13,11 @@ import ThemedTextInput from "../ThemedTextInput";
 import ThemedModal from "../ThemedModal";
 
 export default EditPlayerFormModal = ({ handleClose, player, ...rest }) => {
-  const [playerName, setPlayerName] = useState(player ? player.name : "");
-  const [image, setImage] = useState(null);
+
+  const {name = "", avatar = null} = player;
+
+  const [playerName, setPlayerName] = useState(name);
+  const [playerImage, setPlayerImage] = useState(avatar);
 
   const dispatch = useDispatch();
 
@@ -23,14 +26,13 @@ export default EditPlayerFormModal = ({ handleClose, player, ...rest }) => {
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [4, 4],
       quality: 0,
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      setPlayerImage(result.assets[0].uri);
     }
   };
 
@@ -39,7 +41,7 @@ export default EditPlayerFormModal = ({ handleClose, player, ...rest }) => {
       dispatch(
         updatePlayer({
           ...player,
-          avatar: image,
+          avatar: playerImage,
           name: playerName,
         })
       );
@@ -50,14 +52,15 @@ export default EditPlayerFormModal = ({ handleClose, player, ...rest }) => {
 
   const resetForm = () => {
     setPlayerName("");
-    setImage(null);
+    setPlayerImage(null);
     handleClose();
   };
 
   useEffect(() => {
     inputField.current?.focus();
-    setPlayerName(player?.name);
-  }, [inputField.current, player?.name]);
+    setPlayerName(name);
+    setPlayerImage(avatar);
+  }, [inputField.current, name, avatar]);
 
   const buttonBackground = useThemeColor({}, "buttonBackground");
   const buttonText = useThemeColor({}, "buttonText");
@@ -88,14 +91,14 @@ export default EditPlayerFormModal = ({ handleClose, player, ...rest }) => {
               backgroundColor: buttonBackground,
             }}
           >
-            {image ? (
+            {playerImage ? (
               <Image
                 style={{
                   width: 130,
                   height: 130,
                   borderRadius: 130,
                 }}
-                source={{ uri: image }}
+                source={{ uri: playerImage }}
               />
             ) : (
               <FontAwesome6
@@ -107,28 +110,30 @@ export default EditPlayerFormModal = ({ handleClose, player, ...rest }) => {
           </TouchableOpacity>
         </ThemedView>
       </View>
-      <ThemedTextInput
-        style={{
-          ...styles.input,
-          backgroundColor: useThemeColor({}, "buttonBackground"),
-          color: useThemeColor({}, "buttonText"),
-        }}
-        placeholder="Player Name"
-        placeholderTextColor={"#dbdbdb"}
-        value={playerName}
-        onChangeText={setPlayerName}
-        ref={inputField}
-      />
-      <ThemedButton
-        disabled={!playerName}
-        style={{ opacity: !playerName ? 0.5 : 1 }}
-        onPress={handleEditPlayer}
-      >
-        Edit Player
-      </ThemedButton>
-      <ThemedButton type="danger" onPress={resetForm}>
-        Cancel
-      </ThemedButton>
+      <ThemedView style={{ gap: 10 }}>
+        <ThemedTextInput
+          style={{
+            ...styles.input,
+            backgroundColor: useThemeColor({}, "buttonBackground"),
+            color: useThemeColor({}, "buttonText"),
+          }}
+          placeholder="Player Name"
+          placeholderTextColor={"#dbdbdb"}
+          value={playerName}
+          onChangeText={setPlayerName}
+          ref={inputField}
+        />
+        <ThemedButton
+          disabled={!playerName}
+          style={{ opacity: !playerName ? 0.5 : 1 }}
+          onPress={handleEditPlayer}
+        >
+          Save
+        </ThemedButton>
+        <ThemedButton type="danger" onPress={resetForm}>
+          Cancel
+        </ThemedButton>
+      </ThemedView>
     </ThemedModal>
   );
 };
