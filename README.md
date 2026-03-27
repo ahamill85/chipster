@@ -1,6 +1,18 @@
 # Chipster 🃏
 
-A modern poker game management app built with React Native and Expo. Track chips, manage players, handle betting rounds, and keep game statistics - all in one sleek mobile application.
+<p align="center">
+  <img src="assets/images/icon.png" alt="Chipster App Icon" width="120" height="120">
+</p>
+
+<p align="center">
+  <strong>A modern poker game management app built with React Native and Expo</strong>
+</p>
+
+<p align="center">
+  Track chips, manage players, handle betting rounds, and keep game statistics - all in one sleek mobile application.
+</p>
+
+---
 
 ## Features
 
