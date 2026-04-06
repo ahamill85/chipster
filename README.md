@@ -47,52 +47,20 @@
 
 ## App Walkthrough
 
-<div style="overflow-x: auto; white-space: nowrap; padding: 20px 0; background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; margin: 20px 0;">
-  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
-    <img src="assets/images/screenshots/01_chipster_start_view.png" alt="Welcome Screen" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Welcome & Setup</p>
-    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Clean start screen to begin your session</p>
-  </div>
-  
-  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
-    <img src="assets/images/screenshots/02_chipster_add_players_view.png" alt="Add Players" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Add Players</p>
-    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Import from contacts or manage roster</p>
-  </div>
-  
-  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
-    <img src="assets/images/screenshots/03_chipster_create_player_view.png" alt="Create Player" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Create Players</p>
-    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Add custom players with photos</p>
-  </div>
-  
-  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
-    <img src="assets/images/screenshots/04_chipster_options_view.png" alt="Game Options" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Game Setup</p>
-    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Configure blinds and betting rules</p>
-  </div>
-  
-  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
-    <img src="assets/images/screenshots/05_chipster_game_view.png" alt="Live Game" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Live Gameplay</p>
-    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Real-time chip tracking & betting</p>
-  </div>
-  
-  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
-    <img src="assets/images/screenshots/06_chipster_select_winner_view.png" alt="Winner Selection" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Winner Selection</p>
-    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Quick winner & pot distribution</p>
-  </div>
-  
-  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
-    <img src="assets/images/screenshots/07_chipster_end_game_view.png" alt="Game Summary" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Game Summary</p>
-    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Final standings & statistics</p>
+<div align="center">
+  <div style="display: flex; overflow-x: auto; white-space: nowrap; gap: 10px;">
+    <img src="assets/images/screenshots/01_chipster_start_view.png" width="300" />
+    <img src="assets/images/screenshots/02_chipster_add_players_view.png" width="300" />
+    <img src="assets/images/screenshots/03_chipster_create_player_view.png" width="300" />
+    <img src="assets/images/screenshots/04_chipster_options_view.png" width="300" />
+    <img src="assets/images/screenshots/05_chipster_game_view.png" width="300" />
+    <img src="assets/images/screenshots/06_chipster_select_winner_view.png" width="300" />
+    <img src="assets/images/screenshots/07_chipster_end_game_view.png" width="300" />
   </div>
 </div>
 
-<p align="center" style="margin-top: 10px;">
-  <em>👈 Scroll horizontally to see the complete user journey</em>
+<p align="center">
+  <em>👆 Scroll horizontally to see the complete user journey from setup to game completion</em>
 </p>
 
 ## What Makes Chipster Special
