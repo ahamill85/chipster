@@ -5,11 +5,15 @@
 </p>
 
 <p align="center">
-  <strong>A modern poker game management app built with React Native and Expo</strong>
+  <strong>The poker game management app that makes home games effortless</strong>
 </p>
 
 <p align="center">
-  Track chips, manage players, handle betting rounds, and keep game statistics - all in one sleek mobile application.
+  Tired of messy chip stacks, forgotten blinds, and complicated scorekeeping? Chipster transforms your poker nights with elegant game management, real-time chip tracking, and seamless player administration.
+</p>
+
+<p align="center">
+  <em>A complete mobile solution built from the ground up for serious poker enthusiasts.</em>
 </p>
 
 ---
@@ -41,63 +45,100 @@
 - **Player Stats**: Individual player performance metrics
 - **Profit/Loss Tracking**: Monitor winnings and losses over time
 
-## Screenshots & Demo
+## App Walkthrough
 
-*[Screenshots would go here]*
+<div style="overflow-x: auto; white-space: nowrap; padding: 20px 0; background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; margin: 20px 0;">
+  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
+    <img src="assets/images/screenshots/01_chipster_start_view.png" alt="Welcome Screen" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Welcome & Setup</p>
+    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Clean start screen to begin your session</p>
+  </div>
+  
+  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
+    <img src="assets/images/screenshots/02_chipster_add_players_view.png" alt="Add Players" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Add Players</p>
+    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Import from contacts or manage roster</p>
+  </div>
+  
+  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
+    <img src="assets/images/screenshots/03_chipster_create_player_view.png" alt="Create Player" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Create Players</p>
+    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Add custom players with photos</p>
+  </div>
+  
+  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
+    <img src="assets/images/screenshots/04_chipster_options_view.png" alt="Game Options" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Game Setup</p>
+    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Configure blinds and betting rules</p>
+  </div>
+  
+  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
+    <img src="assets/images/screenshots/05_chipster_game_view.png" alt="Live Game" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Live Gameplay</p>
+    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Real-time chip tracking & betting</p>
+  </div>
+  
+  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
+    <img src="assets/images/screenshots/06_chipster_select_winner_view.png" alt="Winner Selection" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Winner Selection</p>
+    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Quick winner & pot distribution</p>
+  </div>
+  
+  <div style="display: inline-block; text-align: center; margin: 0 15px; vertical-align: top;">
+    <img src="assets/images/screenshots/07_chipster_end_game_view.png" alt="Game Summary" style="width: 250px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <p style="margin: 15px 0 0 0; font-weight: 600; color: #2c3e50; white-space: normal; width: 250px;">Game Summary</p>
+    <p style="margin: 5px 0 0 0; font-size: 14px; color: #7f8c8d; white-space: normal; width: 250px;">Final standings & statistics</p>
+  </div>
+</div>
 
-## Tech Stack
+<p align="center" style="margin-top: 10px;">
+  <em>👈 Scroll horizontally to see the complete user journey</em>
+</p>
 
-- **Framework**: React Native with Expo
-- **Navigation**: Expo Router
-- **State Management**: Redux Toolkit
-- **UI Components**: Custom themed components
-- **Gestures**: React Native Gesture Handler & Reanimated
-- **Device Integration**: Expo Contacts, Image Picker
-- **Platforms**: iOS, Android, Web
+## What Makes Chipster Special
 
-## Getting Started
+🚀 **Built for Real Poker Games** - Designed by poker players, for poker players. Every feature addresses actual pain points from home game management.
+
+🎨 **Intuitive Design** - Clean, modern interface that anyone can pick up immediately. No learning curve, just start playing.
+
+📱 **Cross-Platform** - Works seamlessly on iOS, Android, and web browsers. Your game data stays with you across all devices.
+
+⚡ **Lightning Fast** - Optimized performance ensures smooth gameplay even with large player groups and extended sessions.
+
+🔗 **Smart Integrations** - Import players directly from your contacts, add custom photos, and maintain player histories across games.
+
+---
+
+## Built With
+
+React Native • Expo • Redux • Custom UI Components
+
+*A showcase of modern mobile development techniques and user experience design*
+
+---
+
+<details>
+<summary><strong>🛠️ For Developers - Setup Instructions</strong></summary>
 
 ### Prerequisites
 - Node.js (v16 or later)
 - Expo CLI (`npm install -g expo-cli`)
-- iOS Simulator (for iOS development)
-- Android Studio & Emulator (for Android development)
 
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/chipster.git
-   cd chipster
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start the Expo development server**
-   ```bash
-   npm start
-   ```
-
-4. **Run on your preferred platform**
-   ```bash
-   # iOS
-   npm run ios
-   
-   # Android  
-   npm run android
-   
-   # Web
-   npm run web
-   ```
-
-### Development Commands
-
+### Quick Start
 ```bash
-# Start development server
+git clone https://github.com/yourusername/chipster.git
+cd chipster
+npm install
 npm start
+```
+
+### Platform Commands
+```bash
+npm run ios     # iOS Simulator
+npm run android # Android Emulator  
+npm run web     # Web Browser
+```
+</details>
 
 # Run on specific platforms
 npm run ios
