@@ -47,21 +47,13 @@
 
 ## App Walkthrough
 
-<div align="center">
-  <div style="display: flex; overflow-x: auto; white-space: nowrap; gap: 10px;">
-    <img src="assets/images/screenshots/01_chipster_start_view.png" width="300" />
-    <img src="assets/images/screenshots/02_chipster_add_players_view.png" width="300" />
-    <img src="assets/images/screenshots/03_chipster_create_player_view.png" width="300" />
-    <img src="assets/images/screenshots/04_chipster_options_view.png" width="300" />
-    <img src="assets/images/screenshots/05_chipster_game_view.png" width="300" />
-    <img src="assets/images/screenshots/06_chipster_select_winner_view.png" width="300" />
-    <img src="assets/images/screenshots/07_chipster_end_game_view.png" width="300" />
-  </div>
-</div>
+| Welcome | Add Players | Game Setup |
+| :---: | :---: | :---: |
+| <img src="assets/images/screenshots/01_chipster_start_view.png" width="250"> | <img src="assets/images/screenshots/02_chipster_add_players_view.png" width="250"> | <img src="assets/images/screenshots/04_chipster_options_view.png" width="250"> |
 
-<p align="center">
-  <em>👆 Scroll horizontally to see the complete user journey from setup to game completion</em>
-</p>
+| Live Game | Winner Selection | Game Summary |
+| :---: | :---: | :---: |
+| <img src="assets/images/screenshots/05_chipster_game_view.png" width="250"> | <img src="assets/images/screenshots/06_chipster_select_winner_view.png" width="250"> | <img src="assets/images/screenshots/07_chipster_end_game_view.png" width="250"> |
 
 ## What Makes Chipster Special
 
